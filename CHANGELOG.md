@@ -7,7 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Phase 2 — UI System (current)
+### Phase 3 — SEO, i18n & Performance (current)
+
+**Added**
+
+- `next-intl` v3 with `zh` (default) / `en` locales, `localePrefix: as-needed` so `/` stays clean and `/en` is explicit
+- `app/[locale]/` route segment + `app/(admin)/` route group — admin stays non-localized and `noindex`
+- `messages/zh.json` + `messages/en.json` — full translations for nav, hero, about, features, stats, cases, FAQ, CTA, footer, chat widget
+- `i18n/routing.ts` + `i18n/request.ts` + `middleware.ts` — locale negotiation + localized `<Link>` / `useRouter`
+- `LanguageSwitcher` component in NavBar (desktop + mobile)
+- `app/sitemap.ts` — localized URLs with `alternates.languages`
+- `app/robots.ts` — sitemap reference, `/admin` + `/api` disallowed
+- JSON-LD structured data (`Organization` + `WebSite`) injected server-side on home page
+- `alternates.languages` in metadata for hreflang
+- `next.config.mjs` hardened: `compress: true`, AVIF/WebP image formats, HSTS header, immutable asset cache-control
+- All site sections (Hero, About, Features, Stats, Cases, FAQ, CTA, NavBar, Footer) + ChatWidget fully translated
+
+**Changed**
+
+- Admin now lives in `app/(admin)/admin/*` with its own `<html>` root layout (`robots: noindex,nofollow`)
+- Home page moved to `app/[locale]/page.tsx`
+- ChatWidget locale-aware (placeholders, status, labels)
+
+### Phase 2 — UI System
 
 **Added**
 

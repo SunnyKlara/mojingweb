@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { io, type Socket } from 'socket.io-client'
 import { AnimatePresence, motion } from 'framer-motion'
 import { MessageCircle, Send, X, User, Mail } from 'lucide-react'
@@ -12,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 
 export default function ChatWidget() {
+  const t = useTranslations('chat')
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -95,7 +97,7 @@ export default function ChatWidget() {
                   <MessageCircle className="h-4 w-4" />
                 </span>
                 <div>
-                  <p className="text-sm font-semibold leading-none">在线客服</p>
+                  <p className="text-sm font-semibold leading-none">{t('title')}</p>
                   <p className="text-primary-foreground/75 mt-1 flex items-center gap-1 text-xs">
                     <span
                       className={cn(
@@ -103,7 +105,7 @@ export default function ChatWidget() {
                         connected ? 'bg-emerald-400' : 'bg-amber-400',
                       )}
                     />
-                    {connected ? '已连接' : '连接中…'}
+                    {connected ? t('connected') : t('connecting')}
                   </p>
                 </div>
               </div>
@@ -112,7 +114,7 @@ export default function ChatWidget() {
                 size="icon"
                 onClick={() => setOpen(false)}
                 className="text-primary-foreground hover:text-primary-foreground h-8 w-8 hover:bg-white/10"
-                aria-label="关闭客服"
+                aria-label={t('closeLabel')}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -127,38 +129,36 @@ export default function ChatWidget() {
                   setInfoSubmitted(true)
                 }}
               >
-                <p className="text-muted-foreground text-center text-sm">
-                  请留下您的信息，方便我们回复您
-                </p>
+                <p className="text-muted-foreground text-center text-sm">{t('promptInfo')}</p>
                 <div className="grid gap-1.5">
-                  <Label htmlFor="chat-name">姓名（选填）</Label>
+                  <Label htmlFor="chat-name">{t('name')}</Label>
                   <div className="relative">
                     <User className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
                     <Input
                       id="chat-name"
                       className="pl-9"
-                      placeholder="您的姓名"
+                      placeholder={t('namePlaceholder')}
                       value={visitorInfo.name}
                       onChange={(e) => setVisitorInfo((v) => ({ ...v, name: e.target.value }))}
                     />
                   </div>
                 </div>
                 <div className="grid gap-1.5">
-                  <Label htmlFor="chat-email">邮箱（选填）</Label>
+                  <Label htmlFor="chat-email">{t('email')}</Label>
                   <div className="relative">
                     <Mail className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
                     <Input
                       id="chat-email"
                       type="email"
                       className="pl-9"
-                      placeholder="you@example.com"
+                      placeholder={t('emailPlaceholder')}
                       value={visitorInfo.email}
                       onChange={(e) => setVisitorInfo((v) => ({ ...v, email: e.target.value }))}
                     />
                   </div>
                 </div>
                 <Button type="submit" className="w-full">
-                  开始咨询
+                  {t('start')}
                 </Button>
               </form>
             ) : (
@@ -166,7 +166,7 @@ export default function ChatWidget() {
                 <div className="bg-muted/20 flex-1 space-y-2 overflow-y-auto p-4">
                   {messages.length === 0 && (
                     <p className="text-muted-foreground mt-6 text-center text-xs">
-                      您好 👋 有什么可以帮您？
+                      {t('greeting')}
                     </p>
                   )}
                   {messages.map((m, i) => (
@@ -194,7 +194,7 @@ export default function ChatWidget() {
                 <div className="bg-background flex items-center gap-2 border-t p-2">
                   <Input
                     ref={inputRef}
-                    placeholder="输入消息..."
+                    placeholder={t('inputPlaceholder')}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -209,7 +209,7 @@ export default function ChatWidget() {
                     size="icon"
                     onClick={sendMessage}
                     disabled={!input.trim() || !connected}
-                    aria-label="发送"
+                    aria-label={t('send')}
                   >
                     <Send className="h-4 w-4" />
                   </Button>
@@ -225,7 +225,7 @@ export default function ChatWidget() {
         whileHover={{ scale: 1.04 }}
         onClick={() => setOpen((o) => !o)}
         className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring grid h-14 w-14 place-items-center rounded-full shadow-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-        aria-label={open ? '关闭客服' : '打开客服'}
+        aria-label={open ? t('closeLabel') : t('openLabel')}
       >
         <AnimatePresence mode="wait" initial={false}>
           {open ? (

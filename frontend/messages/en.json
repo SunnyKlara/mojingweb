@@ -1,0 +1,176 @@
+{
+  "meta": {
+    "title": "GlobalBridge — Bridge to Global Markets",
+    "titleTemplate": "%s · GlobalBridge",
+    "description": "Professional B2B globalization services helping Chinese enterprises expand overseas through market entry, agent partnerships, and supply-chain integration.",
+    "siteName": "GlobalBridge"
+  },
+  "nav": {
+    "about": "About",
+    "services": "Services",
+    "cases": "Cases",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "cta": "Get Started",
+    "toggleMenu": "Toggle menu",
+    "toggleTheme": "Toggle theme",
+    "languageSwitcher": "Language"
+  },
+  "hero": {
+    "badge": "B2B globalization experts · 500+ enterprises served",
+    "titleLine1": "Bridge to Global Markets",
+    "titleLine2": "Accelerate Your Expansion",
+    "description": "We provide Chinese enterprises with overseas market entry, agent recruitment, and supply-chain integration so you can scale globally with confidence.",
+    "primaryCta": "Talk to an expert",
+    "secondaryCta": "View case studies"
+  },
+  "logoCloud": {
+    "title": "Trusted by 500+ enterprises worldwide"
+  },
+  "about": {
+    "eyebrow": "About us",
+    "title": "8 years of globalization expertise",
+    "paragraph1": "Founded in 2016, GlobalBridge is a specialist agency helping Chinese enterprises enter overseas markets. We operate across Europe, North America, and Southeast Asia.",
+    "paragraph2": "Our senior team brings 10+ years of cross-border experience, deeply understanding cultural and regulatory nuances to deliver executable strategies for our clients.",
+    "bullets": {
+      "b1": "Dedicated localization team",
+      "b2": "Partner network across 30+ countries",
+      "b3": "End-to-end tracking and support",
+      "b4": "Transparent engagement model",
+      "b5": "Rich cross-border experience",
+      "b6": "Tailored go-to-market plans"
+    }
+  },
+  "features": {
+    "eyebrow": "Our services",
+    "title": "End-to-end globalization solutions",
+    "description": "From market research to operational execution — every link of your global journey is covered.",
+    "items": {
+      "market": {
+        "title": "Market Expansion",
+        "desc": "Enter European, American, and Southeast Asian markets with localized strategy and curated resources."
+      },
+      "partners": {
+        "title": "Agent Partnerships",
+        "desc": "Global agent recruitment and management to build resilient distribution networks and rapid coverage."
+      },
+      "supply": {
+        "title": "Supply Chain",
+        "desc": "Integrated supplier resources, delivering an end-to-end procurement-to-fulfillment solution."
+      },
+      "compliance": {
+        "title": "Compliance & Risk",
+        "desc": "Deep local regulatory knowledge to mitigate risk and keep your expansion compliant."
+      },
+      "growth": {
+        "title": "Growth Consulting",
+        "desc": "Data-driven overseas growth roadmaps, from positioning to on-the-ground execution."
+      },
+      "team": {
+        "title": "Local Team Support",
+        "desc": "Consultants in 30+ countries ready to respond to your business needs in real time."
+      }
+    }
+  },
+  "stats": {
+    "clients": "Enterprises",
+    "countries": "Countries",
+    "years": "Years of expertise",
+    "satisfaction": "Client satisfaction"
+  },
+  "cases": {
+    "eyebrow": "Case studies",
+    "title": "Why they chose us",
+    "description": "Real clients, real growth.",
+    "items": {
+      "manufacturing": {
+        "industry": "Industrial equipment",
+        "name": "A manufacturing leader",
+        "result": "Entered the European market in 6 months, onboarded 12 regional agents, and crossed 8-figure annual sales."
+      },
+      "saas": {
+        "industry": "SaaS",
+        "name": "A tech company",
+        "result": "Secured first overseas funding round through our network and 3x'd their valuation."
+      },
+      "consumer": {
+        "industry": "Consumer electronics",
+        "name": "A consumer brand",
+        "result": "Grew Southeast Asia revenue 300% YoY, becoming a top-3 regional brand."
+      }
+    }
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Things you might ask",
+    "items": {
+      "q1": {
+        "q": "How long does an engagement take?",
+        "a": "From 3-month market research to 12+ months of in-depth execution depending on the scope. We lock down a clear timeline before kickoff."
+      },
+      "q2": {
+        "q": "How is pricing structured?",
+        "a": "A hybrid of retainer + performance share — aligned with your goals. The exact structure depends on project complexity."
+      },
+      "q3": {
+        "q": "Which industries do you focus on?",
+        "a": "Industrial manufacturing, consumer goods, consumer electronics, and cross-border SaaS. We welcome conversations from other sectors case-by-case."
+      },
+      "q4": {
+        "q": "How is client data protected?",
+        "a": "All communications and client data are encrypted and access is SSO-gated with full audit logs. NDAs available pre-engagement."
+      },
+      "q5": {
+        "q": "Can I buy a single service module?",
+        "a": "Yes. We support modular engagements and incremental add-ons as needed."
+      }
+    }
+  },
+  "cta": {
+    "eyebrow": "Contact",
+    "title": "Ready to go global?",
+    "description": "Chat with a consultant via the widget on the lower right, or reach us directly by email or phone.",
+    "email": "Send email",
+    "phone": "+86 400-000-0000"
+  },
+  "footer": {
+    "tagline": "Professional B2B globalization services connecting Chinese enterprises to the world.",
+    "columns": {
+      "product": "Product",
+      "company": "Company",
+      "resources": "Resources",
+      "legal": "Legal"
+    },
+    "links": {
+      "marketExpansion": "Market Expansion",
+      "agents": "Agent Partnerships",
+      "supplyChain": "Supply Chain",
+      "aboutUs": "About",
+      "cases": "Case Studies",
+      "contactUs": "Contact",
+      "blog": "Blog",
+      "whitepapers": "Whitepapers",
+      "faq": "FAQ",
+      "privacy": "Privacy",
+      "terms": "Terms"
+    },
+    "copyright": "© {year} GlobalBridge. All rights reserved.",
+    "madeWith": "Made with care for B2B builders."
+  },
+  "chat": {
+    "title": "Live Support",
+    "connected": "Connected",
+    "connecting": "Connecting…",
+    "closeLabel": "Close chat",
+    "openLabel": "Open chat",
+    "promptInfo": "Leave your info so we can follow up",
+    "name": "Name (optional)",
+    "namePlaceholder": "Your name",
+    "email": "Email (optional)",
+    "emailPlaceholder": "you@example.com",
+    "start": "Start chat",
+    "greeting": "Hi 👋 how can we help?",
+    "inputPlaceholder": "Type a message...",
+    "send": "Send"
+  }
+}

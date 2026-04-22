@@ -1,8 +1,10 @@
-import Link from 'next/link'
+'use client'
+import { useTranslations } from 'next-intl'
 import { Mail, Phone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export function CTA() {
+  const t = useTranslations('cta')
   return (
     <section id="contact" className="py-20 sm:py-28">
       <div className="container-prose">
@@ -13,20 +15,16 @@ export function CTA() {
           />
           <div className="relative max-w-xl">
             <p className="text-primary-foreground/75 mb-3 text-sm uppercase tracking-wider">
-              联系我们
+              {t('eyebrow')}
             </p>
-            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-              准备好开始出海了吗？
-            </h2>
-            <p className="text-primary-foreground/85 mt-4 text-base">
-              点击右下角客服按钮与顾问实时沟通，或直接通过邮件 / 电话联系我们。
-            </p>
+            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">{t('title')}</h2>
+            <p className="text-primary-foreground/85 mt-4 text-base">{t('description')}</p>
             <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row">
               <Button asChild size="lg" variant="secondary">
-                <Link href="mailto:contact@globalbridge.com">
+                <a href="mailto:contact@globalbridge.example.com">
                   <Mail />
-                  发送邮件
-                </Link>
+                  {t('email')}
+                </a>
               </Button>
               <Button
                 asChild
@@ -34,10 +32,10 @@ export function CTA() {
                 variant="outline"
                 className="text-primary-foreground hover:text-primary-foreground border-white/30 bg-transparent hover:bg-white/10"
               >
-                <Link href="tel:+864000000000">
+                <a href="tel:+864000000000">
                   <Phone />
-                  +86 400-000-0000
-                </Link>
+                  {t('phone')}
+                </a>
               </Button>
             </div>
           </div>

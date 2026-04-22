@@ -1,11 +1,15 @@
+'use client'
+import { useTranslations } from 'next-intl'
+
 const logos = ['ACME Corp', 'Globex', 'Initech', 'Umbrella', 'Stark Ind.', 'Wayne Ent.']
 
 export function LogoCloud() {
+  const t = useTranslations('logoCloud')
   return (
     <div className="bg-muted/20 border-y py-12">
       <div className="container-prose">
         <p className="text-muted-foreground mb-8 text-center text-xs uppercase tracking-widest">
-          受到 500+ 企业的信赖
+          {t('title')}
         </p>
         <div className="grid grid-cols-2 items-center justify-items-center gap-y-8 opacity-70 sm:grid-cols-3 lg:grid-cols-6">
           {logos.map((name) => (

@@ -1,4 +1,5 @@
 import dynamic from 'next/dynamic'
+import { setRequestLocale } from 'next-intl/server'
 import { NavBar } from '@/components/site/navbar'
 import { Footer } from '@/components/site/footer'
 import { Hero } from '@/components/site/hero'
@@ -9,12 +10,16 @@ import { Stats } from '@/components/site/stats'
 import { Cases } from '@/components/site/cases'
 import { FAQ } from '@/components/site/faq'
 import { CTA } from '@/components/site/cta'
+import { JsonLd } from '@/components/seo/json-ld'
 
 const ChatWidget = dynamic(() => import('@/components/ChatWidget'), { ssr: false })
 
-export default function Home() {
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  setRequestLocale(locale)
   return (
     <>
+      <JsonLd locale={locale} />
       <NavBar />
       <main>
         <Hero />
