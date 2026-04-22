@@ -130,9 +130,26 @@
   "cta": {
     "eyebrow": "联系我们",
     "title": "准备好开始出海了吗？",
-    "description": "点击右下角客服按钮与顾问实时沟通，或直接通过邮件 / 电话联系我们。",
+    "description": "留下您的联系方式，我们的顾问会在 1 个工作日内与您联系。",
     "email": "发送邮件",
     "phone": "+86 400-000-0000"
+  },
+  "form": {
+    "name": "姓名",
+    "namePlaceholder": "您的姓名",
+    "email": "邮箱",
+    "emailPlaceholder": "you@company.com",
+    "company": "公司",
+    "companyPlaceholder": "您所在的公司",
+    "phone": "电话",
+    "phonePlaceholder": "可选",
+    "message": "留言",
+    "messagePlaceholder": "请简要描述您的需求",
+    "submit": "提交咨询",
+    "submitting": "提交中…",
+    "success": "提交成功，我们会尽快与您联系",
+    "failure": "提交失败，请稍后重试",
+    "required": "此项必填"
   },
   "footer": {
     "tagline": "专业的 B2B 全球化服务，连接中国企业与世界市场。",

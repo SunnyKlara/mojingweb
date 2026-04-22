@@ -7,7 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Phase 5 — Chat Enhancements (current)
+### Phase 6 — Lead Capture & Lightweight CRM (current)
+
+**Added — shared**
+
+- `CreateLeadRequestSchema`, `UpdateLeadRequestSchema`, `LeadSchema` with `LEAD_STATUSES`
+
+**Added — backend**
+
+- `Lead` model (Mongoose) with timestamps, indexes on status/email/createdAt
+- `POST /api/leads` public endpoint: Zod validation + honeypot (`website` field) + rate limit (3/min/IP) + audit log + email notification (fire-and-forget)
+- `GET /api/leads` admin listing with status filter
+- `PATCH /api/leads/:id` admin status/notes update
+- `notifyNewLead` mailer (HTML-escaped)
+
+**Added — frontend**
+
+- `ContactForm` component (hooks + toast + honeypot + loading state)
+- Split-layout CTA (gradient info + inline form)
+- `/admin/leads` dashboard: search, 5-way status filter chips, per-row quick status buttons, timestamps
+
+### Phase 5 — Chat Enhancements
 
 **Added — shared**
 

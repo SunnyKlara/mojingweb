@@ -54,6 +54,39 @@ export async function notifyNewMessage(params: {
   }
 }
 
+export async function notifyNewLead(lead: {
+  name: string
+  email: string
+  company?: string
+  phone?: string
+  message: string
+  source?: string
+  locale?: string
+}): Promise<void> {
+  const tx = getTransporter()
+  if (!tx || !env.NOTIFY_EMAIL) return
+  try {
+    await tx.sendMail({
+      from: env.SMTP_FROM || env.SMTP_USER,
+      to: env.NOTIFY_EMAIL,
+      subject: `[Lead] ${lead.name} · ${lead.company || lead.email}`,
+      html: `
+        <h2>New lead submitted</h2>
+        <p><strong>Name:</strong> ${escapeHtml(lead.name)}</p>
+        <p><strong>Email:</strong> ${escapeHtml(lead.email)}</p>
+        ${lead.company ? `<p><strong>Company:</strong> ${escapeHtml(lead.company)}</p>` : ''}
+        ${lead.phone ? `<p><strong>Phone:</strong> ${escapeHtml(lead.phone)}</p>` : ''}
+        ${lead.source ? `<p><strong>Source:</strong> ${escapeHtml(lead.source)}</p>` : ''}
+        ${lead.locale ? `<p><strong>Locale:</strong> ${escapeHtml(lead.locale)}</p>` : ''}
+        <hr/>
+        <p>${escapeHtml(lead.message).replace(/\n/g, '<br/>')}</p>
+      `,
+    })
+  } catch (err) {
+    logger.error({ err }, 'Failed to send lead notification email')
+  }
+}
+
 function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) => {
     const map: Record<string, string> = {

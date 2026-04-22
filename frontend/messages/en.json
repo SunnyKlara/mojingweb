@@ -130,9 +130,26 @@
   "cta": {
     "eyebrow": "Contact",
     "title": "Ready to go global?",
-    "description": "Chat with a consultant via the widget on the lower right, or reach us directly by email or phone.",
+    "description": "Leave your details and a consultant will reach out within one business day.",
     "email": "Send email",
     "phone": "+86 400-000-0000"
+  },
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Your name",
+    "email": "Email",
+    "emailPlaceholder": "you@company.com",
+    "company": "Company",
+    "companyPlaceholder": "Your company",
+    "phone": "Phone",
+    "phonePlaceholder": "Optional",
+    "message": "Message",
+    "messagePlaceholder": "Briefly describe your needs",
+    "submit": "Submit",
+    "submitting": "Submitting…",
+    "success": "Submitted — we'll be in touch soon.",
+    "failure": "Submission failed, please try again later",
+    "required": "Required"
   },
   "footer": {
     "tagline": "Professional B2B globalization services connecting Chinese enterprises to the world.",

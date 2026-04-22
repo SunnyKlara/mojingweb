@@ -10,6 +10,7 @@ import { env } from './config/env'
 import { logger } from './config/logger'
 import { authRouter } from './routes/auth.routes'
 import { chatRouter } from './routes/chat.routes'
+import { leadRouter } from './routes/lead.routes'
 import { healthRouter } from './routes/health.routes'
 import { errorHandler, notFoundHandler } from './middleware/error.middleware'
 import { registerSocketHandlers } from './socket'
@@ -48,6 +49,7 @@ export function createServer(): { app: express.Express; server: http.Server; io:
   app.use('/api', healthRouter)
   app.use('/api/auth', authRouter)
   app.use('/api/chat', chatRouter)
+  app.use('/api/leads', leadRouter)
 
   app.use(notFoundHandler)
   app.use(errorHandler)
