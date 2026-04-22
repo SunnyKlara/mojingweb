@@ -8,7 +8,11 @@ import {
   SOCKET_EVENTS,
   VisitorMessagePayloadSchema,
   AdminMessagePayloadSchema,
+  TypingPayloadSchema,
+  type TypingBroadcast,
+  type ReadReceipt,
 } from '@mojing/shared'
+import { z } from 'zod'
 import type { SocketData } from './types'
 
 const ADMIN_ROOM = 'admin_room'
@@ -119,6 +123,107 @@ export function registerSocketHandlers(io: IOServer): void {
 
     socket.on(SOCKET_EVENTS.ADMIN_MESSAGE, (data: unknown) => {
       void handleAdminMessage(io, socket, data)
+    })
+
+    // Typing indicators (both directions)
+    socket.on(SOCKET_EVENTS.VISITOR_TYPING, (data: unknown) => {
+      if (!socket.data.visitor) return
+      const parsed = TypingPayloadSchema.safeParse(data)
+      if (!parsed.success) return
+      if (parsed.data.sessionId !== socket.data.visitor.sessionId) return
+      const broadcast: TypingBroadcast = {
+        sessionId: parsed.data.sessionId,
+        from: 'visitor',
+        isTyping: parsed.data.isTyping,
+      }
+      io.to(ADMIN_ROOM).emit(SOCKET_EVENTS.TYPING, broadcast)
+    })
+
+    socket.on(SOCKET_EVENTS.ADMIN_TYPING, (data: unknown) => {
+      if (!socket.data.admin) return
+      const parsed = TypingPayloadSchema.safeParse(data)
+      if (!parsed.success) return
+      const broadcast: TypingBroadcast = {
+        sessionId: parsed.data.sessionId,
+        from: 'admin',
+        isTyping: parsed.data.isTyping,
+      }
+      io.to(parsed.data.sessionId).emit(SOCKET_EVENTS.TYPING, broadcast)
+    })
+
+    // Visitor marks the conversation as read (they've seen admin's messages)
+    socket.on(SOCKET_EVENTS.VISITOR_READ, async (data: unknown) => {
+      if (!socket.data.visitor) return
+      const parsed = z.object({ sessionId: z.string().uuid() }).safeParse(data)
+      if (!parsed.success) return
+      if (parsed.data.sessionId !== socket.data.visitor.sessionId) return
+      try {
+        await MessageModel.updateMany(
+          { sessionId: parsed.data.sessionId, sender: 'admin', read: false },
+          { read: true },
+        )
+        const receipt: ReadReceipt = {
+          sessionId: parsed.data.sessionId,
+          by: 'visitor',
+          at: new Date().toISOString(),
+        }
+        io.to(ADMIN_ROOM).emit(SOCKET_EVENTS.READ_RECEIPT, receipt)
+      } catch (err) {
+        logger.error({ err }, 'visitor_read failed')
+      }
+    })
+
+    // Admin read (also exposed as REST PATCH /admin/read/:sid).
+    socket.on(SOCKET_EVENTS.ADMIN_READ, async (data: unknown) => {
+      if (!socket.data.admin) return
+      const parsed = z.object({ sessionId: z.string().uuid() }).safeParse(data)
+      if (!parsed.success) return
+      try {
+        await MessageModel.updateMany(
+          { sessionId: parsed.data.sessionId, sender: 'visitor', read: false },
+          { read: true },
+        )
+        await SessionModel.updateOne({ sessionId: parsed.data.sessionId }, { unreadCount: 0 })
+        const receipt: ReadReceipt = {
+          sessionId: parsed.data.sessionId,
+          by: 'admin',
+          at: new Date().toISOString(),
+        }
+        io.to(parsed.data.sessionId).emit(SOCKET_EVENTS.READ_RECEIPT, receipt)
+      } catch (err) {
+        logger.error({ err }, 'admin_read failed')
+      }
+    })
+
+    // Session close/reopen (admin only)
+    socket.on(SOCKET_EVENTS.SESSION_CLOSE, async (data: unknown) => {
+      if (!socket.data.admin) return
+      const parsed = z.object({ sessionId: z.string().uuid() }).safeParse(data)
+      if (!parsed.success) return
+      try {
+        await SessionModel.updateOne({ sessionId: parsed.data.sessionId }, { status: 'closed' })
+        io.to(ADMIN_ROOM).emit(SOCKET_EVENTS.SESSION_UPDATED, {
+          sessionId: parsed.data.sessionId,
+          status: 'closed',
+        })
+      } catch (err) {
+        logger.error({ err }, 'session_close failed')
+      }
+    })
+
+    socket.on(SOCKET_EVENTS.SESSION_REOPEN, async (data: unknown) => {
+      if (!socket.data.admin) return
+      const parsed = z.object({ sessionId: z.string().uuid() }).safeParse(data)
+      if (!parsed.success) return
+      try {
+        await SessionModel.updateOne({ sessionId: parsed.data.sessionId }, { status: 'open' })
+        io.to(ADMIN_ROOM).emit(SOCKET_EVENTS.SESSION_UPDATED, {
+          sessionId: parsed.data.sessionId,
+          status: 'open',
+        })
+      } catch (err) {
+        logger.error({ err }, 'session_reopen failed')
+      }
     })
 
     socket.on('disconnect', () => {

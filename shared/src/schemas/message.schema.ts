@@ -36,3 +36,26 @@ export const AdminMessagePayloadSchema = z.object({
   content: z.string().trim().min(1).max(MESSAGE_MAX_LENGTH),
 })
 export type AdminMessagePayload = z.infer<typeof AdminMessagePayloadSchema>
+
+/** Typing indicator payload — same shape for both visitor and admin. */
+export const TypingPayloadSchema = z.object({
+  sessionId: UuidSchema,
+  isTyping: z.boolean(),
+})
+export type TypingPayload = z.infer<typeof TypingPayloadSchema>
+
+/** Who triggered the typing indicator, announced by the server. */
+export const TypingBroadcastSchema = z.object({
+  sessionId: UuidSchema,
+  from: z.enum(MESSAGE_SENDERS),
+  isTyping: z.boolean(),
+})
+export type TypingBroadcast = z.infer<typeof TypingBroadcastSchema>
+
+/** Read receipt sent by either side. */
+export const ReadReceiptSchema = z.object({
+  sessionId: UuidSchema,
+  by: z.enum(MESSAGE_SENDERS),
+  at: IsoDateSchema,
+})
+export type ReadReceipt = z.infer<typeof ReadReceiptSchema>

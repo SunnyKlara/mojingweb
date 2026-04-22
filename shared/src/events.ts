@@ -11,12 +11,16 @@ export const SOCKET_EVENTS = {
   ADMIN_MESSAGE: 'admin:message',
   ADMIN_TYPING: 'admin:typing',
   ADMIN_READ: 'admin:read',
+  VISITOR_READ: 'visitor:read',
+  SESSION_CLOSE: 'session:close',
+  SESSION_REOPEN: 'session:reopen',
 
   // Server → Client
   MESSAGE: 'message',
   NEW_MESSAGE: 'new_message',
   SESSION_UPDATED: 'session:updated',
   TYPING: 'typing',
+  READ_RECEIPT: 'read_receipt',
   AUTH_ERROR: 'auth_error',
   RATE_LIMITED: 'rate_limited',
   ERROR: 'error',

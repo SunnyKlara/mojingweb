@@ -190,6 +190,8 @@
     "start": "开始咨询",
     "greeting": "您好 👋 有什么可以帮您？",
     "inputPlaceholder": "输入消息...",
-    "send": "发送"
+    "send": "发送",
+    "readBadge": "已读",
+    "typingIndicator": "对方正在输入…"
   }
 }

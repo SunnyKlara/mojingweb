@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl'
 import { io, type Socket } from 'socket.io-client'
 import { AnimatePresence, motion } from 'framer-motion'
 import { MessageCircle, Send, X, User, Mail } from 'lucide-react'
-import { SOCKET_EVENTS, type Message } from '@mojing/shared'
+import { SOCKET_EVENTS, type Message, type TypingBroadcast } from '@mojing/shared'
 import { BACKEND_URL, api } from '@/lib/api'
 import { ensureVisitorSession } from '@/lib/chat-session'
 import { Button } from '@/components/ui/button'
@@ -20,10 +20,13 @@ export default function ChatWidget() {
   const [visitorInfo, setVisitorInfo] = useState({ name: '', email: '' })
   const [infoSubmitted, setInfoSubmitted] = useState(false)
   const [connected, setConnected] = useState(false)
+  const [adminTyping, setAdminTyping] = useState(false)
   const socketRef = useRef<Socket | null>(null)
   const sessionIdRef = useRef<string>('')
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastTypingSentRef = useRef<number>(0)
 
   useEffect(() => {
     let cancelled = false
@@ -41,6 +44,19 @@ export default function ChatWidget() {
 
       socket.on(SOCKET_EVENTS.MESSAGE, (msg: Message) => {
         setMessages((prev) => [...prev, msg])
+      })
+
+      socket.on(SOCKET_EVENTS.TYPING, (payload: TypingBroadcast) => {
+        if (payload.sessionId !== sessionIdRef.current) return
+        if (payload.from !== 'admin') return
+        setAdminTyping(payload.isTyping)
+      })
+
+      socket.on(SOCKET_EVENTS.READ_RECEIPT, () => {
+        // Admin read our messages — mark them as read locally.
+        setMessages((prev) =>
+          prev.map((m) => (m.sender === 'visitor' && !m.read ? { ...m, read: true } : m)),
+        )
       })
 
       try {
@@ -64,6 +80,32 @@ export default function ChatWidget() {
   useEffect(() => {
     if (open && infoSubmitted) inputRef.current?.focus()
   }, [open, infoSubmitted])
+
+  // When panel opens and we have unread admin messages → mark read.
+  useEffect(() => {
+    if (!open || !infoSubmitted || !sessionIdRef.current) return
+    socketRef.current?.emit(SOCKET_EVENTS.VISITOR_READ, { sessionId: sessionIdRef.current })
+  }, [open, infoSubmitted, messages.length])
+
+  const handleTyping = () => {
+    if (!sessionIdRef.current || !connected) return
+    const now = Date.now()
+    if (now - lastTypingSentRef.current > 1500) {
+      socketRef.current?.emit(SOCKET_EVENTS.VISITOR_TYPING, {
+        sessionId: sessionIdRef.current,
+        isTyping: true,
+      })
+      lastTypingSentRef.current = now
+    }
+    if (typingTimerRef.current) clearTimeout(typingTimerRef.current)
+    typingTimerRef.current = setTimeout(() => {
+      socketRef.current?.emit(SOCKET_EVENTS.VISITOR_TYPING, {
+        sessionId: sessionIdRef.current,
+        isTyping: false,
+      })
+      lastTypingSentRef.current = 0
+    }, 2000)
+  }
 
   const sendMessage = () => {
     const trimmed = input.trim()
@@ -169,26 +211,51 @@ export default function ChatWidget() {
                       {t('greeting')}
                     </p>
                   )}
-                  {messages.map((m, i) => (
-                    <div
-                      key={i}
-                      className={cn(
-                        'flex',
-                        m.sender === 'visitor' ? 'justify-end' : 'justify-start',
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          'max-w-[75%] rounded-2xl px-3 py-2 text-sm leading-relaxed',
-                          m.sender === 'visitor'
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-background text-foreground border',
+                  {messages.map((m, i) => {
+                    const isLastVisitorRead =
+                      m.sender === 'visitor' && i === messages.length - 1 && m.read === true
+                    return (
+                      <div key={i} className="flex flex-col">
+                        <div
+                          className={cn(
+                            'flex',
+                            m.sender === 'visitor' ? 'justify-end' : 'justify-start',
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              'max-w-[75%] rounded-2xl px-3 py-2 text-sm leading-relaxed',
+                              m.sender === 'visitor'
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-background text-foreground border',
+                            )}
+                          >
+                            {m.content}
+                          </span>
+                        </div>
+                        {isLastVisitorRead && (
+                          <span className="text-muted-foreground mt-0.5 self-end text-[10px]">
+                            {t('readBadge')}
+                          </span>
                         )}
-                      >
-                        {m.content}
+                      </div>
+                    )
+                  })}
+                  {adminTyping && (
+                    <div className="flex justify-start">
+                      <span className="bg-background text-muted-foreground inline-flex items-center gap-1 rounded-2xl border px-3 py-2">
+                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current" />
+                        <span
+                          className="h-1.5 w-1.5 animate-bounce rounded-full bg-current"
+                          style={{ animationDelay: '0.15s' }}
+                        />
+                        <span
+                          className="h-1.5 w-1.5 animate-bounce rounded-full bg-current"
+                          style={{ animationDelay: '0.3s' }}
+                        />
                       </span>
                     </div>
-                  ))}
+                  )}
                   <div ref={bottomRef} />
                 </div>
                 <div className="bg-background flex items-center gap-2 border-t p-2">
@@ -196,7 +263,10 @@ export default function ChatWidget() {
                     ref={inputRef}
                     placeholder={t('inputPlaceholder')}
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={(e) => {
+                      setInput(e.target.value)
+                      handleTyping()
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault()

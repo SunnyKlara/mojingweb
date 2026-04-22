@@ -7,7 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Phase 4 — Content Layer (current)
+### Phase 5 — Chat Enhancements (current)
+
+**Added — shared**
+
+- New socket events: `visitor:typing`, `admin:typing`, `visitor:read`, `typing`, `read_receipt`, `session:close`, `session:reopen`
+- Zod schemas: `TypingPayloadSchema`, `TypingBroadcastSchema`, `ReadReceiptSchema`
+
+**Added — backend socket**
+
+- Typing-indicator relay (debounced on the client) — admins see visitor typing, visitor sees admin typing
+- Read receipts on both sides: visitor marks admin messages read → admin UI shows "访客已读"; admin opens a session → visitor bubble shows "Read"
+- Session lifecycle: `session:close` / `session:reopen` events with server-side Session.status update broadcast via `session:updated`
+- All events validated with Zod; sessionId-spoof protection preserved
+
+**Added — ChatWidget (visitor)**
+
+- Debounced typing emitter
+- Animated 3-dot typing indicator when admin is typing
+- "已读 / Read" badge under the last sent message once admin opens the conversation
+- Auto-send `visitor:read` whenever the panel is open and messages arrive
+
+**Added — Admin console**
+
+- Search box + "未读" filter on session list
+- Tab title live counter (e.g. `(3) 客服后台`) driven by total unread
+- Sound blip (WebAudio, no asset) on incoming visitor messages (toggleable)
+- Browser notification permission prompt + desktop toast when tab is hidden
+- Typing indicator rendered in conversation pane + "正在输入…" replaces last-message preview in sidebar
+- Quick-reply chips (4 presets) triggered by the zap button
+- Close / reopen session button in conversation header; closed sessions visible as badges in sidebar
+- Read receipts (admin sees visitor-read indicator)
+
+### Phase 4 — Content Layer
 
 **Added**
 

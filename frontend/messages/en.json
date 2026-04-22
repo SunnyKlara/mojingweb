@@ -190,6 +190,8 @@
     "start": "Start chat",
     "greeting": "Hi 👋 how can we help?",
     "inputPlaceholder": "Type a message...",
-    "send": "Send"
+    "send": "Send",
+    "readBadge": "Read",
+    "typingIndicator": "Typing…"
   }
 }
