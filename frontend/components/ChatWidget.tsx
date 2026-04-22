@@ -1,9 +1,15 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import { io, type Socket } from 'socket.io-client'
+import { AnimatePresence, motion } from 'framer-motion'
+import { MessageCircle, Send, X, User, Mail } from 'lucide-react'
 import { SOCKET_EVENTS, type Message } from '@mojing/shared'
 import { BACKEND_URL, api } from '@/lib/api'
 import { ensureVisitorSession } from '@/lib/chat-session'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false)
@@ -11,9 +17,11 @@ export default function ChatWidget() {
   const [input, setInput] = useState('')
   const [visitorInfo, setVisitorInfo] = useState({ name: '', email: '' })
   const [infoSubmitted, setInfoSubmitted] = useState(false)
+  const [connected, setConnected] = useState(false)
   const socketRef = useRef<Socket | null>(null)
   const sessionIdRef = useRef<string>('')
   const bottomRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -26,18 +34,18 @@ export default function ChatWidget() {
 
       socket = io(BACKEND_URL, { auth: { sessionToken } })
       socketRef.current = socket
+      socket.on('connect', () => setConnected(true))
+      socket.on('disconnect', () => setConnected(false))
 
       socket.on(SOCKET_EVENTS.MESSAGE, (msg: Message) => {
         setMessages((prev) => [...prev, msg])
       })
 
       try {
-        const history = await api<Message[]>(`/api/chat/history/${sessionId}`, {
-          sessionToken,
-        })
+        const history = await api<Message[]>(`/api/chat/history/${sessionId}`, { sessionToken })
         if (!cancelled) setMessages(history)
       } catch {
-        // ignore (e.g., empty history)
+        // ignore
       }
     })()
 
@@ -51,9 +59,13 @@ export default function ChatWidget() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  useEffect(() => {
+    if (open && infoSubmitted) inputRef.current?.focus()
+  }, [open, infoSubmitted])
+
   const sendMessage = () => {
     const trimmed = input.trim()
-    if (!trimmed || !sessionIdRef.current) return
+    if (!trimmed || !sessionIdRef.current || !connected) return
     socketRef.current?.emit(SOCKET_EVENTS.VISITOR_MESSAGE, {
       sessionId: sessionIdRef.current,
       content: trimmed,
@@ -64,91 +76,181 @@ export default function ChatWidget() {
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-      {open && (
-        <div className="flex h-[460px] w-80 flex-col overflow-hidden rounded-2xl border bg-white shadow-2xl">
-          {/* 头部 */}
-          <div className="flex items-center justify-between bg-blue-600 px-4 py-3 text-white">
-            <span className="font-semibold">在线客服</span>
-            <button onClick={() => setOpen(false)} className="text-lg leading-none text-white">
-              ×
-            </button>
-          </div>
-
-          {/* 访客信息收集 */}
-          {!infoSubmitted ? (
-            <div className="flex flex-1 flex-col justify-center gap-3 p-4">
-              <p className="text-sm text-gray-500">请留下您的信息，方便我们回复您</p>
-              <input
-                className="rounded-lg border px-3 py-2 text-sm"
-                placeholder="您的姓名（选填）"
-                value={visitorInfo.name}
-                onChange={(e) => setVisitorInfo((v) => ({ ...v, name: e.target.value }))}
-              />
-              <input
-                className="rounded-lg border px-3 py-2 text-sm"
-                placeholder="您的邮箱（选填）"
-                value={visitorInfo.email}
-                onChange={(e) => setVisitorInfo((v) => ({ ...v, email: e.target.value }))}
-              />
-              <button
-                onClick={() => setInfoSubmitted(true)}
-                className="rounded-lg bg-blue-600 py-2 text-sm text-white hover:bg-blue-700"
-              >
-                开始咨询
-              </button>
-            </div>
-          ) : (
-            <>
-              {/* 消息列表 */}
-              <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-3">
-                {messages.length === 0 && (
-                  <p className="mt-4 text-center text-xs text-gray-400">您好，有什么可以帮您？</p>
-                )}
-                {messages.map((m, i) => (
-                  <div
-                    key={i}
-                    className={`flex ${m.sender === 'visitor' ? 'justify-end' : 'justify-start'}`}
-                  >
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            key="chat-panel"
+            initial={{ opacity: 0, y: 16, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.96 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
+            className="bg-card text-card-foreground flex h-[520px] w-[360px] flex-col overflow-hidden rounded-2xl border shadow-2xl"
+            role="dialog"
+            aria-label="在线客服"
+          >
+            {/* Header */}
+            <div className="from-primary text-primary-foreground flex items-center justify-between border-b bg-gradient-to-br to-blue-700 px-4 py-3">
+              <div className="flex items-center gap-2">
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-white/15">
+                  <MessageCircle className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold leading-none">在线客服</p>
+                  <p className="text-primary-foreground/75 mt-1 flex items-center gap-1 text-xs">
                     <span
-                      className={`max-w-[70%] rounded-2xl px-3 py-2 text-sm ${
-                        m.sender === 'visitor'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {m.content}
-                    </span>
+                      className={cn(
+                        'h-1.5 w-1.5 rounded-full',
+                        connected ? 'bg-emerald-400' : 'bg-amber-400',
+                      )}
+                    />
+                    {connected ? '已连接' : '连接中…'}
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setOpen(false)}
+                className="text-primary-foreground hover:text-primary-foreground h-8 w-8 hover:bg-white/10"
+                aria-label="关闭客服"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Body */}
+            {!infoSubmitted ? (
+              <form
+                className="flex flex-1 flex-col justify-center gap-4 p-5"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  setInfoSubmitted(true)
+                }}
+              >
+                <p className="text-muted-foreground text-center text-sm">
+                  请留下您的信息，方便我们回复您
+                </p>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="chat-name">姓名（选填）</Label>
+                  <div className="relative">
+                    <User className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+                    <Input
+                      id="chat-name"
+                      className="pl-9"
+                      placeholder="您的姓名"
+                      value={visitorInfo.name}
+                      onChange={(e) => setVisitorInfo((v) => ({ ...v, name: e.target.value }))}
+                    />
                   </div>
-                ))}
-                <div ref={bottomRef} />
-              </div>
+                </div>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="chat-email">邮箱（选填）</Label>
+                  <div className="relative">
+                    <Mail className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+                    <Input
+                      id="chat-email"
+                      type="email"
+                      className="pl-9"
+                      placeholder="you@example.com"
+                      value={visitorInfo.email}
+                      onChange={(e) => setVisitorInfo((v) => ({ ...v, email: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                <Button type="submit" className="w-full">
+                  开始咨询
+                </Button>
+              </form>
+            ) : (
+              <>
+                <div className="bg-muted/20 flex-1 space-y-2 overflow-y-auto p-4">
+                  {messages.length === 0 && (
+                    <p className="text-muted-foreground mt-6 text-center text-xs">
+                      您好 👋 有什么可以帮您？
+                    </p>
+                  )}
+                  {messages.map((m, i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        'flex',
+                        m.sender === 'visitor' ? 'justify-end' : 'justify-start',
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          'max-w-[75%] rounded-2xl px-3 py-2 text-sm leading-relaxed',
+                          m.sender === 'visitor'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-background text-foreground border',
+                        )}
+                      >
+                        {m.content}
+                      </span>
+                    </div>
+                  ))}
+                  <div ref={bottomRef} />
+                </div>
+                <div className="bg-background flex items-center gap-2 border-t p-2">
+                  <Input
+                    ref={inputRef}
+                    placeholder="输入消息..."
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        sendMessage()
+                      }
+                    }}
+                    className="h-9 border-0 shadow-none focus-visible:ring-0"
+                  />
+                  <Button
+                    size="icon"
+                    onClick={sendMessage}
+                    disabled={!input.trim() || !connected}
+                    aria-label="发送"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-              {/* 输入框 */}
-              <div className="flex items-center gap-2 border-t px-3 py-2">
-                <input
-                  className="flex-1 text-sm outline-none"
-                  placeholder="输入消息..."
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                />
-                <button onClick={sendMessage} className="text-sm font-semibold text-blue-600">
-                  发送
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* 悬浮按钮 */}
-      <button
+      <motion.button
+        whileTap={{ scale: 0.94 }}
+        whileHover={{ scale: 1.04 }}
         onClick={() => setOpen((o) => !o)}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-2xl text-white shadow-lg hover:bg-blue-700"
-        aria-label="客服"
+        className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring grid h-14 w-14 place-items-center rounded-full shadow-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+        aria-label={open ? '关闭客服' : '打开客服'}
       >
-        💬
-      </button>
+        <AnimatePresence mode="wait" initial={false}>
+          {open ? (
+            <motion.span
+              key="x"
+              initial={{ rotate: -90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: 90, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <X className="h-5 w-5" />
+            </motion.span>
+          ) : (
+            <motion.span
+              key="msg"
+              initial={{ rotate: 90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: -90, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <MessageCircle className="h-6 w-6" />
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </motion.button>
     </div>
   )
 }

@@ -7,7 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Phase 1 — Security & Auth (current)
+### Phase 2 — UI System (current)
+
+**Added**
+
+- shadcn/ui-style design tokens (CSS variables) with full dark-mode support
+- Core UI kit under `components/ui/*`: Button, Input, Label, Card, Badge, Accordion, Separator, Skeleton
+- `ThemeProvider` (next-themes) + `ThemeToggle` with Sun/Moon cross-fade
+- Inter font via `next/font/google` (CSS variable, swap display)
+- `NavBar` with scroll-reactive backdrop blur + mobile sheet
+- Multi-column `Footer` with link groups
+- Reusable `Section` component (eyebrow / title / description)
+- Home page rebuilt with Hero (gradient text + grid-fade bg), LogoCloud, About, Features (icon cards), Stats (gradient band), Cases, FAQ (Radix accordion), CTA
+- Framer Motion in-view reveal animations on Features / Cases / Stats / Hero
+- Rich site metadata (OpenGraph, Twitter Card, viewport themeColor)
+- Toaster notifications (sonner) — wired into login success/failure
+- `ChatWidget` redesigned: Lucide icons, connection indicator, loading-aware send button, AnimatePresence open/close, auto-focus on input
+- `/admin` redesigned: sidebar with unread badges + empty state, sticky header, bubble chat, icon toolbar
+- `/admin/login` redesigned: Card layout, gradient grid background, sonner toasts
+
+**Changed**
+
+- `tailwind.config.ts` fully wired to CSS variables + `tailwindcss-animate` plugin + Radix accordion keyframes
+- `globals.css` switched to semantic tokens (`bg-background`, `text-foreground`, etc.) with `radial-fade` / `grid-bg` utilities
+
+### Phase 1 — Security & Auth
 
 **Added**
 
