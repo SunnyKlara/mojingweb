@@ -7,7 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Phase 8 — Testing (current)
+### Phase 9 — Frontend Tests & E2E (current)
+
+**Added — frontend**
+
+- Vitest + jsdom + React Testing Library configured (`frontend/vitest.config.ts`, `frontend/__tests__/setup.ts`) with mocks for `next/navigation`, `next-intl`, `ResizeObserver`, `matchMedia`
+- Component tests: `Button` (5), `Badge` (2), `ContactForm` (3) — **10 passing**, covering variants, events, disabled state, form submission happy/error paths
+- Playwright configured with auto-start dev server, Chromium-only, trace on retry, HTML report
+- E2E smoke tests:
+  - `e2e/home.spec.ts` — i18n default redirect, EN toggle, SEO meta, `sitemap.xml`, `robots.txt`, 404 page
+  - `e2e/content.spec.ts` — blog list, blog post render, cases list
+- `frontend/e2e/README.md` — how to run locally, what's covered
+- Root scripts: `pnpm test` now covers shared + backend + frontend; new `pnpm test:e2e`
+
+**Added — CI**
+
+- `test` job renamed to **Unit / Integration Tests** (includes frontend)
+- New **E2E (Playwright)** job installs chromium, runs `pnpm test:e2e`, uploads HTML report on failure
+
+**Test totals**: 30 unit/integration passing (shared 11 + backend 9 + frontend 10) + Playwright E2E smoke.
+
+### Phase 8 — Testing
 
 **Added**
 
