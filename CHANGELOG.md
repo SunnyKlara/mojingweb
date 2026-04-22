@@ -7,7 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Phase 7 — Observability & Deployment (current)
+### Phase 8 — Testing (current)
+
+**Added**
+
+- Vitest wired for `shared` and `backend`
+- `shared/src/__tests__/schemas.test.ts` — 11 passing assertions (UUID, login, visitor message, typing payload, lead honeypot)
+- `backend/src/__tests__/setup.ts` — env bootstrap (JWT secrets, admin seed vars, log level) before any import of `config/env`
+- `backend/vitest.config.ts` — file-serial to avoid mongodb-memory-server lock collision
+- `backend/src/__tests__/auth.test.ts` — login flow, refresh cookie set, `/me` auth gate, Zod rejection (5 tests, powered by `supertest` + `mongodb-memory-server`)
+- `backend/src/__tests__/leads.test.ts` — happy path, honeypot 202, invalid email 400, admin-only listing 401 (4 tests)
+- `pnpm test` script at root running shared + backend suites
+- CI: new `test` job runs alongside lint/typecheck/build
+
+**Changed**
+
+- Backend ESLint override for `__tests__/**` disables `no-unsafe-*` (supertest body is `any` by design)
+- `CreateLeadRequestSchema.website` loosened so the route-level honeypot can return a silent 202 (schema-level rejection would leak that the field was suspicious)
+
+### Phase 7 — Observability & Deployment
 
 **Added — backend**
 

@@ -18,6 +18,7 @@
     "lint": "pnpm -r lint",
     "lint:fix": "pnpm -r lint:fix",
     "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r --filter=shared --filter=backend test",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
     "clean": "pnpm -r exec rm -rf node_modules dist .next .turbo && rm -rf node_modules",

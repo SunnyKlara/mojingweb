@@ -15,7 +15,8 @@ export const CreateLeadRequestSchema = z.object({
   phone: z.string().trim().max(40).optional().or(z.literal('')),
   message: z.string().trim().min(1).max(2000),
   source: z.string().trim().max(40).optional(),
-  website: z.string().max(0).optional(), // honeypot
+  // Honeypot field — accepts anything but the route returns 202 if non-empty.
+  website: z.string().optional(),
   locale: z.enum(['zh', 'en']).optional(),
 })
 export type CreateLeadRequest = z.infer<typeof CreateLeadRequestSchema>

@@ -1,0 +1,12 @@
+// Set required env vars BEFORE anything imports config/env (Zod will validate at import).
+process.env.NODE_ENV = 'test'
+process.env.PORT = '4000'
+process.env.MONGODB_URI = 'mongodb://placeholder-overwritten-by-memory-server'
+process.env.FRONTEND_URL = 'http://localhost:3000'
+process.env.JWT_ACCESS_SECRET = 'test_access_secret_____________________________________test'
+process.env.JWT_REFRESH_SECRET = 'test_refresh_secret_____________________________________test'
+process.env.VISITOR_SESSION_SECRET = 'test_visitor_secret_____________________________________test'
+process.env.ADMIN_USERNAME = 'testadmin'
+process.env.ADMIN_EMAIL = 'test@example.com'
+process.env.ADMIN_PASSWORD = 'StrongTestPass!123'
+process.env.LOG_LEVEL = 'error'
