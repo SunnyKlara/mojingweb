@@ -20,6 +20,7 @@
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r --filter=shared --filter=backend --filter=frontend test",
     "test:e2e": "pnpm --filter=frontend test:e2e",
+    "audit": "pnpm audit --audit-level=high",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
     "clean": "pnpm -r exec rm -rf node_modules dist .next .turbo && rm -rf node_modules",

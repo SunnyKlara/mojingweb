@@ -7,7 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Phase 9 — Frontend Tests & E2E (current)
+### Phase 10 — Observability, A11y, Security (current)
+
+**Added — observability (opt-in)**
+
+- `backend/src/lib/sentry.ts` — pluggable shim: when `SENTRY_DSN` is set **and** `@sentry/node` is installed, initializes Sentry + wires request/error handlers; otherwise every call is a no-op (zero runtime cost)
+- `frontend/lib/sentry.ts` — same pattern on the client via `NEXT_PUBLIC_SENTRY_DSN` + dynamic import with `webpackIgnore` so the build succeeds without the package
+- `frontend/components/sentry-init.tsx` — side-effect-only client component mounted in root layout
+- Error boundary (`app/[locale]/error.tsx`) now reports via `captureException`
+
+**Added — accessibility**
+
+- Global **"Skip to content"** link + `<div id="main-content">` landmark
+- `frontend/e2e/a11y.spec.ts` — axe-core Playwright suite scanning `/zh`, `/en`, `/zh/blog`, `/zh/cases` against WCAG 2.1 A/AA
+
+**Added — security / supply chain**
+
+- Root `pnpm audit` script (fails on high/critical)
+- ESLint ignore-lists updated to skip `e2e/` (has its own Playwright config/types)
+
+**Developer notes**
+
+- Opt-in pattern keeps the default install lean; teams that want Sentry run `pnpm add -F backend @sentry/node` / `pnpm add -F frontend @sentry/nextjs` and set the DSN env var — no code change needed.
+
+### Phase 9 — Frontend Tests & E2E
 
 **Added — frontend**
 

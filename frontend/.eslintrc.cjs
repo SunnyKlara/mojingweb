@@ -3,9 +3,12 @@ module.exports = {
   root: true,
   extends: ['next/core-web-vitals', 'next/typescript'],
   rules: {
-    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+    '@typescript-eslint/no-unused-vars': [
+      'warn',
+      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+    ],
     '@typescript-eslint/consistent-type-imports': 'warn',
     'react/no-unescaped-entities': 'off',
   },
-  ignorePatterns: ['.next', 'node_modules', 'out'],
+  ignorePatterns: ['.next', 'node_modules', 'out', 'e2e', 'playwright-report', 'test-results'],
 }

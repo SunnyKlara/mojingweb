@@ -2,6 +2,7 @@
 import { useEffect } from 'react'
 import { AlertTriangle, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { captureException } from '@/lib/sentry'
 
 export default function ErrorPage({
   error,
@@ -11,8 +12,7 @@ export default function ErrorPage({
   reset: () => void
 }) {
   useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.error('Page error:', error)
+    captureException(error)
   }, [error])
 
   return (

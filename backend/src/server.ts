@@ -14,8 +14,10 @@ import { leadRouter } from './routes/lead.routes'
 import { healthRouter } from './routes/health.routes'
 import { errorHandler, notFoundHandler } from './middleware/error.middleware'
 import { registerSocketHandlers } from './socket'
+import { initSentry, sentryRequestHandler, sentryErrorHandler } from './lib/sentry'
 
 export function createServer(): { app: express.Express; server: http.Server; io: IOServer } {
+  initSentry()
   const app = express()
   const server = http.createServer(app)
   const io = new IOServer(server, {
@@ -25,6 +27,9 @@ export function createServer(): { app: express.Express; server: http.Server; io:
   app.disable('x-powered-by')
   // Express 4: needed so req.ip honors X-Forwarded-For behind Railway / Cloudflare.
   app.set('trust proxy', 1)
+
+  // Sentry request handler must come BEFORE any other middleware.
+  app.use(sentryRequestHandler)
 
   app.use(
     helmet({
@@ -52,6 +57,8 @@ export function createServer(): { app: express.Express; server: http.Server; io:
   app.use('/api/leads', leadRouter)
 
   app.use(notFoundHandler)
+  // Sentry error handler must come BEFORE the project-level error handler.
+  app.use(sentryErrorHandler)
   app.use(errorHandler)
 
   registerSocketHandlers(io)

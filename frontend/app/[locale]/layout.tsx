@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/theme-provider'
+import { SentryInit } from '@/components/sentry-init'
 import { routing } from '@/i18n/routing'
 import { cn } from '@/lib/utils'
 import '../globals.css'
@@ -73,6 +74,13 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={cn('bg-background min-h-screen font-sans antialiased', inter.variable)}>
+        <a
+          href="#main-content"
+          className="bg-primary text-primary-foreground focus:ring-ring sr-only fixed left-2 top-2 z-[100] rounded px-3 py-2 text-sm font-medium focus:not-sr-only focus:outline-none focus:ring-2"
+        >
+          Skip to content
+        </a>
+        <SentryInit />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider
             attribute="class"
@@ -80,7 +88,7 @@ export default async function LocaleLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <div id="main-content">{children}</div>
             <Toaster richColors position="top-right" closeButton />
           </ThemeProvider>
         </NextIntlClientProvider>
