@@ -1,25 +1,9 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { Socket } from 'socket.io-client';
-import { io } from 'socket.io-client'
-
-interface Message {
-  sessionId: string
-  sender: 'visitor' | 'admin'
-  content: string
-  createdAt?: string
-}
-
-interface Session {
-  _id: string
-  lastMessage: string
-  visitorInfo?: { name?: string; email?: string }
-  unread: number
-  updatedAt: string
-}
-
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000'
+import { io, type Socket } from 'socket.io-client'
+import { SOCKET_EVENTS, type Message, type Session } from '@mojing/shared'
+import { BACKEND_URL, api, getAccessToken, setAccessToken } from '@/lib/api'
 
 export default function AdminPage() {
   const router = useRouter()
@@ -31,45 +15,63 @@ export default function AdminPage() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const activeSessionRef = useRef<string | null>(null)
 
+  const logout = useCallback(async () => {
+    try {
+      await api('/api/auth/logout', { method: 'POST' })
+    } catch {
+      // ignore
+    }
+    setAccessToken(null)
+    router.push('/admin/login')
+  }, [router])
+
+  const loadSessions = useCallback(async () => {
+    try {
+      const data = await api<Session[]>('/api/chat/admin/sessions', { auth: true })
+      setSessions(data)
+    } catch {
+      await logout()
+    }
+  }, [logout])
+
   useEffect(() => {
-    const token = localStorage.getItem('admin_token')
+    const token = getAccessToken()
     if (!token) {
       router.push('/admin/login')
       return
     }
 
-    const socket = io(BACKEND)
+    const socket = io(BACKEND_URL, { auth: { adminToken: token } })
     socketRef.current = socket
-    socket.emit('join_admin', token)
 
-    socket.on('auth_error', () => {
-      localStorage.removeItem('admin_token')
-      router.push('/admin/login')
+    socket.on('connect_error', (err) => {
+      if (err.message.includes('token')) void logout()
     })
 
-    socket.on('new_message', (msg: Message) => {
+    socket.on(SOCKET_EVENTS.NEW_MESSAGE, (msg: Message) => {
       setSessions((prev) => {
-        const exists = prev.find((s) => s._id === msg.sessionId)
+        const exists = prev.find((s) => s.sessionId === msg.sessionId)
         if (exists) {
           return prev.map((s) =>
-            s._id === msg.sessionId
+            s.sessionId === msg.sessionId
               ? {
                   ...s,
                   lastMessage: msg.content,
-                  unread:
+                  unreadCount:
                     msg.sender === 'visitor' && activeSessionRef.current !== msg.sessionId
-                      ? s.unread + 1
-                      : s.unread,
+                      ? s.unreadCount + 1
+                      : s.unreadCount,
                 }
               : s,
           )
         }
         return [
           {
-            _id: msg.sessionId,
+            sessionId: msg.sessionId,
+            status: 'open' as const,
             lastMessage: msg.content,
-            unread: 1,
-            updatedAt: new Date().toISOString(),
+            unreadCount: 1,
+            tags: [],
           },
           ...prev,
         ]
@@ -79,11 +81,11 @@ export default function AdminPage() {
       }
     })
 
-    loadSessions(token)
+    void loadSessions()
     return () => {
       socket.disconnect()
     }
-  }, [router])
+  }, [router, loadSessions, logout])
 
   useEffect(() => {
     activeSessionRef.current = activeSession
@@ -93,44 +95,26 @@ export default function AdminPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  const getToken = () => localStorage.getItem('admin_token') || ''
-
-  const loadSessions = async (token: string) => {
-    const res = await fetch(`${BACKEND}/api/chat/sessions`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    if (res.status === 401) {
-      router.push('/admin/login')
-      return
-    }
-    const data = await res.json()
-    setSessions(data)
-  }
-
   const openSession = async (sid: string) => {
     setActiveSession(sid)
-    const token = getToken()
-    const res = await fetch(`${BACKEND}/api/chat/history/${sid}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    const data = await res.json()
-    setMessages(data)
-    await fetch(`${BACKEND}/api/chat/read/${sid}`, {
-      method: 'PATCH',
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    setSessions((prev) => prev.map((s) => (s._id === sid ? { ...s, unread: 0 } : s)))
+    try {
+      const data = await api<Message[]>(`/api/chat/admin/history/${sid}`, { auth: true })
+      setMessages(data)
+      await api(`/api/chat/admin/read/${sid}`, { method: 'PATCH', auth: true })
+      setSessions((prev) => prev.map((s) => (s.sessionId === sid ? { ...s, unreadCount: 0 } : s)))
+    } catch {
+      await logout()
+    }
   }
 
   const sendReply = () => {
-    if (!input.trim() || !activeSession) return
-    socketRef.current?.emit('admin_message', { sessionId: activeSession, content: input })
+    const trimmed = input.trim()
+    if (!trimmed || !activeSession) return
+    socketRef.current?.emit(SOCKET_EVENTS.ADMIN_MESSAGE, {
+      sessionId: activeSession,
+      content: trimmed,
+    })
     setInput('')
-  }
-
-  const logout = () => {
-    localStorage.removeItem('admin_token')
-    router.push('/admin/login')
   }
 
   return (
@@ -139,7 +123,10 @@ export default function AdminPage() {
       <aside className="flex w-72 flex-col border-r">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <span className="font-semibold text-gray-700">客服后台</span>
-          <button onClick={logout} className="text-xs text-gray-400 hover:text-red-500">
+          <button
+            onClick={() => void logout()}
+            className="text-xs text-gray-400 hover:text-red-500"
+          >
             退出
           </button>
         </div>
@@ -149,17 +136,17 @@ export default function AdminPage() {
           )}
           {sessions.map((s) => (
             <button
-              key={s._id}
-              onClick={() => openSession(s._id)}
-              className={`w-full border-b px-4 py-3 text-left hover:bg-gray-50 ${activeSession === s._id ? 'bg-blue-50' : ''}`}
+              key={s.sessionId}
+              onClick={() => void openSession(s.sessionId)}
+              className={`w-full border-b px-4 py-3 text-left hover:bg-gray-50 ${activeSession === s.sessionId ? 'bg-blue-50' : ''}`}
             >
               <div className="flex items-center justify-between">
                 <span className="truncate text-sm font-medium">
-                  {s.visitorInfo?.name || s._id.slice(0, 8)}
+                  {s.visitorInfo?.name || s.sessionId.slice(0, 8)}
                 </span>
-                {s.unread > 0 && (
+                {s.unreadCount > 0 && (
                   <span className="rounded-full bg-red-500 px-1.5 text-xs text-white">
-                    {s.unread}
+                    {s.unreadCount}
                   </span>
                 )}
               </div>
@@ -178,7 +165,7 @@ export default function AdminPage() {
           <>
             <div className="border-b px-4 py-3 text-sm text-gray-500">
               会话:{' '}
-              {sessions.find((s) => s._id === activeSession)?.visitorInfo?.name ||
+              {sessions.find((s) => s.sessionId === activeSession)?.visitorInfo?.name ||
                 activeSession.slice(0, 8)}
             </div>
             <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-4">

@@ -1,8 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000'
+import type { LoginResponse } from '@mojing/shared'
+import { api, setAccessToken } from '@/lib/api'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -15,14 +15,11 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch(`${BACKEND}/api/auth/login`, {
+      const data = await api<LoginResponse>('/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      localStorage.setItem('admin_token', data.token)
+      setAccessToken(data.accessToken)
       router.push('/admin')
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : '登录失败')

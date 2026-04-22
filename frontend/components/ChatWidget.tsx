@@ -1,16 +1,9 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import type { Socket } from 'socket.io-client';
-import { io } from 'socket.io-client'
-import { v4 as uuidv4 } from 'uuid'
-
-interface Message {
-  sender: 'visitor' | 'admin'
-  content: string
-  createdAt?: string
-}
-
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000'
+import { io, type Socket } from 'socket.io-client'
+import { SOCKET_EVENTS, type Message } from '@mojing/shared'
+import { BACKEND_URL, api } from '@/lib/api'
+import { ensureVisitorSession } from '@/lib/chat-session'
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false)
@@ -19,34 +12,38 @@ export default function ChatWidget() {
   const [visitorInfo, setVisitorInfo] = useState({ name: '', email: '' })
   const [infoSubmitted, setInfoSubmitted] = useState(false)
   const socketRef = useRef<Socket | null>(null)
-  const sessionId = useRef<string>('')
+  const sessionIdRef = useRef<string>('')
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // 持久化 sessionId
-    let sid = localStorage.getItem('chat_session')
-    if (!sid) {
-      sid = uuidv4()
-      localStorage.setItem('chat_session', sid)
-    }
-    sessionId.current = sid
+    let cancelled = false
+    let socket: Socket | undefined
 
-    const socket = io(BACKEND)
-    socketRef.current = socket
-    socket.emit('join', sid)
+    void (async () => {
+      const { sessionId, sessionToken } = await ensureVisitorSession()
+      if (cancelled) return
+      sessionIdRef.current = sessionId
 
-    socket.on('message', (msg: Message) => {
-      setMessages((prev) => [...prev, msg])
-    })
+      socket = io(BACKEND_URL, { auth: { sessionToken } })
+      socketRef.current = socket
 
-    // 加载历史消息
-    fetch(`${BACKEND}/api/chat/history/${sid}`)
-      .then((r) => r.json())
-      .then((data) => setMessages(data))
-      .catch(() => {})
+      socket.on(SOCKET_EVENTS.MESSAGE, (msg: Message) => {
+        setMessages((prev) => [...prev, msg])
+      })
+
+      try {
+        const history = await api<Message[]>(`/api/chat/history/${sessionId}`, {
+          sessionToken,
+        })
+        if (!cancelled) setMessages(history)
+      } catch {
+        // ignore (e.g., empty history)
+      }
+    })()
 
     return () => {
-      socket.disconnect()
+      cancelled = true
+      socket?.disconnect()
     }
   }, [])
 
@@ -55,10 +52,11 @@ export default function ChatWidget() {
   }, [messages])
 
   const sendMessage = () => {
-    if (!input.trim()) return
-    socketRef.current?.emit('visitor_message', {
-      sessionId: sessionId.current,
-      content: input,
+    const trimmed = input.trim()
+    if (!trimmed || !sessionIdRef.current) return
+    socketRef.current?.emit(SOCKET_EVENTS.VISITOR_MESSAGE, {
+      sessionId: sessionIdRef.current,
+      content: trimmed,
       visitorInfo,
     })
     setInput('')

@@ -1,15 +1,13 @@
 import type { Server as IOServer, Socket, DefaultEventsMap } from 'socket.io'
-import jwt from 'jsonwebtoken'
-import { env } from '../config/env'
 import { logger } from '../config/logger'
 import { MessageModel } from '../models/Message.model'
+import { SessionModel } from '../models/Session.model'
 import { notifyNewMessage } from '../services/mailer.service'
+import { verifyAccessToken, verifyVisitorSession } from '../services/token.service'
 import {
   SOCKET_EVENTS,
   VisitorMessagePayloadSchema,
   AdminMessagePayloadSchema,
-  UuidSchema,
-  type AccessTokenPayload,
 } from '@mojing/shared'
 import type { SocketData } from './types'
 
@@ -17,12 +15,63 @@ const ADMIN_ROOM = 'admin_room'
 
 type AppSocket = Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, SocketData>
 
-async function handleVisitorMessage(io: IOServer, data: unknown): Promise<void> {
+/**
+ * Connection-level authentication middleware.
+ * A socket MUST present EITHER:
+ *   - auth.adminToken   → admin JWT (joined to admin_room)
+ *   - auth.sessionToken → visitor JWT (bound to its sessionId)
+ * Anonymous connections are rejected.
+ */
+function authenticateSocket(socket: AppSocket, next: (err?: Error) => void): void {
+  const auth = (socket.handshake.auth ?? {}) as {
+    adminToken?: string
+    sessionToken?: string
+  }
+
+  if (auth.adminToken) {
+    try {
+      socket.data.admin = verifyAccessToken(auth.adminToken)
+      return next()
+    } catch {
+      return next(new Error('Invalid admin token'))
+    }
+  }
+
+  if (auth.sessionToken) {
+    try {
+      socket.data.visitor = verifyVisitorSession(auth.sessionToken)
+      return next()
+    } catch {
+      return next(new Error('Invalid visitor session token'))
+    }
+  }
+
+  next(new Error('Authentication required'))
+}
+
+async function handleVisitorMessage(io: IOServer, socket: AppSocket, data: unknown): Promise<void> {
+  if (!socket.data.visitor) return
   const parsed = VisitorMessagePayloadSchema.safeParse(data)
   if (!parsed.success) return
   const { sessionId, content, visitorInfo } = parsed.data
+
+  // Critical: reject spoofed sessionId.
+  if (sessionId !== socket.data.visitor.sessionId) {
+    socket.emit(SOCKET_EVENTS.ERROR, 'sessionId does not match session token')
+    return
+  }
+
   try {
     const msg = await MessageModel.create({ sessionId, sender: 'visitor', content, visitorInfo })
+    await SessionModel.updateOne(
+      { sessionId },
+      {
+        $set: { lastMessage: content, lastMessageAt: new Date(), visitorInfo, status: 'open' },
+        $inc: { unreadCount: 1 },
+        $setOnInsert: { sessionId },
+      },
+      { upsert: true },
+    )
     io.to(ADMIN_ROOM).emit(SOCKET_EVENTS.NEW_MESSAGE, msg)
     io.to(sessionId).emit(SOCKET_EVENTS.MESSAGE, msg)
     await notifyNewMessage({ sessionId, content, visitorInfo })
@@ -38,6 +87,10 @@ async function handleAdminMessage(io: IOServer, socket: AppSocket, data: unknown
   const { sessionId, content } = parsed.data
   try {
     const msg = await MessageModel.create({ sessionId, sender: 'admin', content })
+    await SessionModel.updateOne(
+      { sessionId },
+      { $set: { lastMessage: content, lastMessageAt: new Date() } },
+    )
     io.to(sessionId).emit(SOCKET_EVENTS.MESSAGE, msg)
     io.to(ADMIN_ROOM).emit(SOCKET_EVENTS.NEW_MESSAGE, msg)
   } catch (err) {
@@ -46,28 +99,22 @@ async function handleAdminMessage(io: IOServer, socket: AppSocket, data: unknown
 }
 
 export function registerSocketHandlers(io: IOServer): void {
+  io.use((socket, next) => authenticateSocket(socket as AppSocket, next))
+
   io.on('connection', (socket: AppSocket) => {
-    logger.debug({ id: socket.id }, 'socket connected')
-
-    socket.on(SOCKET_EVENTS.VISITOR_JOIN, (sessionId: unknown) => {
-      const parsed = UuidSchema.safeParse(sessionId)
-      if (!parsed.success) return
-      void socket.join(parsed.data)
-    })
-
-    socket.on(SOCKET_EVENTS.ADMIN_JOIN, (token: unknown) => {
-      if (typeof token !== 'string') return
-      try {
-        const payload = jwt.verify(token, env.JWT_ACCESS_SECRET) as AccessTokenPayload
-        socket.data.admin = payload
-        void socket.join(ADMIN_ROOM)
-      } catch {
-        socket.emit(SOCKET_EVENTS.AUTH_ERROR, 'Invalid token')
-      }
-    })
+    if (socket.data.admin) {
+      logger.debug({ id: socket.id, user: socket.data.admin.username }, 'admin socket connected')
+      void socket.join(ADMIN_ROOM)
+    } else if (socket.data.visitor) {
+      logger.debug(
+        { id: socket.id, sessionId: socket.data.visitor.sessionId },
+        'visitor socket connected',
+      )
+      void socket.join(socket.data.visitor.sessionId)
+    }
 
     socket.on(SOCKET_EVENTS.VISITOR_MESSAGE, (data: unknown) => {
-      void handleVisitorMessage(io, data)
+      void handleVisitorMessage(io, socket, data)
     })
 
     socket.on(SOCKET_EVENTS.ADMIN_MESSAGE, (data: unknown) => {
