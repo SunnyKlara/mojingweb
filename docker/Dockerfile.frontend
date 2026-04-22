@@ -1,0 +1,33 @@
+# syntax=docker/dockerfile:1.7
+FROM node:22-alpine AS base
+RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+
+FROM base AS deps
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml .npmrc ./
+COPY shared/package.json shared/
+COPY frontend/package.json frontend/
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --filter=frontend... --filter=shared...
+
+FROM deps AS build
+ARG NEXT_PUBLIC_BACKEND_URL
+ARG NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+COPY shared ./shared
+COPY frontend ./frontend
+RUN pnpm --filter=frontend build
+
+FROM node:22-alpine AS runtime
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3000
+RUN addgroup -g 1001 -S app && adduser -u 1001 -S app -G app
+COPY --from=build --chown=app:app /app/frontend/.next/standalone ./
+COPY --from=build --chown=app:app /app/frontend/.next/static ./frontend/.next/static
+COPY --from=build --chown=app:app /app/frontend/public ./frontend/public
+USER app
+EXPOSE 3000
+CMD ["node", "frontend/server.js"]

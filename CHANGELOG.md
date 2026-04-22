@@ -7,7 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Phase 6 — Lead Capture & Lightweight CRM (current)
+### Phase 7 — Observability & Deployment (current)
+
+**Added — backend**
+
+- `/api/health` — liveness probe (no DB call)
+- `/api/ready` — readiness probe with Mongo ping
+- `/api/metrics` — admin-only ops metrics (uptime, memory, document counts by collection)
+
+**Added — frontend**
+
+- `app/[locale]/not-found.tsx` — branded 404
+- `app/[locale]/error.tsx` — client-side error boundary with reset + digest
+- `app/[locale]/loading.tsx` — spinner suspense fallback
+- `output: 'standalone'` for Next.js → slim Docker images
+
+**Added — ops**
+
+- `docker/Dockerfile.api` — multi-stage, non-root user, Mongo-aware healthcheck, Node 22, pnpm cache mount
+- `docker/Dockerfile.frontend` — Next standalone build, non-root user
+- `docker-compose.prod.yml` — api + web + mongo wired end-to-end for local prod smoke test
+- `docs/DEPLOY.md` — end-to-end deployment runbook (Vercel / Railway / Atlas / Cloudflare)
+
+### Phase 6 — Lead Capture & Lightweight CRM
 
 **Added — shared**
 
