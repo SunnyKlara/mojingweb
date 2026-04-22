@@ -9,6 +9,7 @@
     "about": "About",
     "services": "Services",
     "cases": "Cases",
+    "blog": "Blog",
     "faq": "FAQ",
     "contact": "Contact",
     "cta": "Get Started",
@@ -156,6 +157,24 @@
     },
     "copyright": "© {year} GlobalBridge. All rights reserved.",
     "madeWith": "Made with care for B2B builders."
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Playbooks, trends and methodologies from the field",
+    "readMore": "Read more",
+    "minRead": "{min} min read",
+    "backToList": "← Back to blog",
+    "publishedOn": "Published",
+    "byAuthor": "By"
+  },
+  "casesPage": {
+    "title": "Case Studies",
+    "subtitle": "Real business outcomes, reusable playbooks",
+    "viewCase": "View case",
+    "backToList": "← Back to cases",
+    "client": "Client",
+    "industry": "Industry",
+    "region": "Region"
   },
   "chat": {
     "title": "Live Support",

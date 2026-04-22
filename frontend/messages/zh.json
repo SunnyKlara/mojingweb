@@ -9,6 +9,7 @@
     "about": "关于我们",
     "services": "服务",
     "cases": "案例",
+    "blog": "博客",
     "faq": "常见问题",
     "contact": "联系",
     "cta": "免费咨询",
@@ -156,6 +157,24 @@
     },
     "copyright": "© {year} GlobalBridge. 保留所有权利。",
     "madeWith": "为全球 B2B 建设者精心打造"
+  },
+  "blog": {
+    "title": "博客",
+    "subtitle": "出海实战、趋势观察与方法论",
+    "readMore": "阅读全文",
+    "minRead": "{min} 分钟阅读",
+    "backToList": "← 返回博客列表",
+    "publishedOn": "发布于",
+    "byAuthor": "作者"
+  },
+  "casesPage": {
+    "title": "客户案例",
+    "subtitle": "真实的业务成果，可复用的经验总结",
+    "viewCase": "查看案例",
+    "backToList": "← 返回案例列表",
+    "client": "客户",
+    "industry": "行业",
+    "region": "区域"
   },
   "chat": {
     "title": "在线客服",

@@ -7,7 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Phase 3 — SEO, i18n & Performance (current)
+### Phase 4 — Content Layer (current)
+
+**Added**
+
+- MDX content pipeline using `next-mdx-remote/rsc` + `gray-matter`, no build-step coupling
+- `content/blog/{zh,en}/*.mdx` — 3 seed blog posts per locale (Europe entry, agent selection, 2025 supply-chain trends)
+- `content/cases/{zh,en}/*.mdx` — 2 seed case studies per locale (industrial + SaaS)
+- `lib/content.ts` — typed API for `listContent`, `getContent`, `listAllSlugs`; reading-time auto-computed
+- `components/mdx.tsx` — MDX renderer wired with `remark-gfm` + `rehype-slug` + `rehype-pretty-code` (shiki-based code blocks)
+- Routes: `app/[locale]/blog`, `app/[locale]/blog/[slug]`, `app/[locale]/cases`, `app/[locale]/cases/[slug]` — all SSG via `generateStaticParams`
+- `@tailwindcss/typography` plugin for polished long-form reading (`prose prose-neutral dark:prose-invert`)
+- `sitemap.ts` now iterates all locales + blog + case slugs dynamically
+
+**Changed**
+
+- NavBar links updated to point to `/blog` and `/cases`
+- New `blog` and `casesPage` namespaces in i18n messages
+
+### Phase 3 — SEO, i18n & Performance
 
 **Added**
 
