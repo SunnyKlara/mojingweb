@@ -1,7 +1,7 @@
-# ModelZone · Deployment Guide
+# ModelZone · Deployment Guide (Render-first)
 
-Target production topology for **V1 Brand Platform** (see ADR-0002 for why
-Fly.io over Render / Railway).
+Target production topology for **V1 Brand Platform**. Render-first per
+ADR-0011; ADR-0002 (Fly.io) superseded by the card-access constraint.
 
 ```
 ┌──────────────────────┐          ┌─────────────────────┐
@@ -11,10 +11,10 @@ Fly.io over Render / Railway).
            │                                 │
            ▼                                 │
 ┌──────────────────────┐      API+WS    ┌────┴────────────────┐
-│  Vercel Hobby        │ ─────────────▶ │  Fly.io free tier    │
-│  (frontend/)         │                │  (backend/)          │
+│  Vercel Hobby        │ ─────────────▶ │  Render free tier    │
+│  (frontend/)         │                │  (backend/, docker)  │
 │  Next.js 14 App      │                │  Express+Socket.io   │
-│  Static + SSR + edge │                │  Node 20, single hk  │
+│  Static + SSR + edge │                │  Node 20, singapore  │
 └──────────────────────┘                └────────┬─────────────┘
                                                  │
                                                  ▼
@@ -24,8 +24,9 @@ Fly.io over Render / Railway).
                                         └──────────────────┘
 ```
 
-**Monthly cost target**: ¥60–130 until traffic or feature set forces an
-upgrade (see PROMPT §3 upgrade triggers).
+**Monthly cost target**: ¥0 until traffic or feature set forces an upgrade
+(V1 runs entirely on free tiers: Vercel Hobby + Render free + Atlas M0 +
+Cloudflare free + Sentry Developer). Upgrade triggers in PROMPT §3.
 
 ---
 
@@ -34,7 +35,7 @@ upgrade (see PROMPT §3 upgrade triggers).
 | Account                                    | Purpose                     | Tier                                  |
 | ------------------------------------------ | --------------------------- | ------------------------------------- |
 | [Vercel](https://vercel.com)               | Frontend hosting            | Hobby (free)                          |
-| [Fly.io](https://fly.io)                   | Backend hosting             | Free-tier (shared-cpu-1x 256 MB)      |
+| [Render.com](https://render.com)           | Backend hosting             | Free Web Service (512 MB, 750 h/mo)   |
 | [MongoDB Atlas](https://cloud.mongodb.com) | Database                    | M0 free cluster (already provisioned) |
 | [Cloudflare](https://cloudflare.com)       | DNS + CDN + WAF + registrar | Free                                  |
 | [Sentry](https://sentry.io)                | Error monitoring            | Developer free (5 k errors / mo)      |
@@ -73,61 +74,84 @@ Generate JWT secrets once:
 
 ---
 
-## 2 · Backend → Fly.io (Week 2 work)
+## 2 · Backend → Render (Week 2 work)
 
-Not yet deployed. Target configuration (Week 2 T1):
+Not yet deployed. Target configuration (Week 2 T1).
 
-```toml
-# fly.toml (root of repo)
-app = "modelzone-api"
-primary_region = "hkg"
+### 2.1 `render.yaml` (committed to repo root)
 
-[build]
-  dockerfile = "docker/Dockerfile.api"
+Render reads this on first deploy and on every subsequent push. Non-secrets
+live here; secrets are injected via the Render dashboard (`sync: false`).
 
-[env]
-  NODE_ENV = "production"
-  PORT = "4000"
-  LOG_LEVEL = "info"
-
-[[services]]
-  internal_port = 4000
-  protocol = "tcp"
-  auto_stop_machines = true
-  auto_start_machines = true
-  min_machines_running = 0  # bump to 1 ($1.94/mo) when cold-start hurts
-
-  [[services.ports]]
-    port = 80
-    handlers = ["http"]
-    force_https = true
-  [[services.ports]]
-    port = 443
-    handlers = ["tls", "http"]
-
-  [services.http_checks]
-    path = "/api/health"
-    interval = "30s"
-    timeout = "2s"
+```yaml
+# render.yaml
+services:
+  - type: web
+    name: modelzone-api
+    runtime: docker
+    repo: https://github.com/SunnyKlara/mojingweb
+    branch: main
+    region: singapore
+    plan: free
+    dockerfilePath: ./docker/Dockerfile.api
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - { key: NODE_ENV, value: production }
+      - { key: PORT, value: 4000 }
+      - { key: LOG_LEVEL, value: info }
+      - { key: FRONTEND_URL, value: https://modelzone-tawny.vercel.app }
+      - { key: SENTRY_ENVIRONMENT, value: production }
+      # Secrets set in Render dashboard, not committed:
+      - { key: MONGODB_URI, sync: false }
+      - { key: JWT_ACCESS_SECRET, sync: false }
+      - { key: JWT_REFRESH_SECRET, sync: false }
+      - { key: ADMIN_USERNAME, sync: false }
+      - { key: ADMIN_PASSWORD, sync: false }
+      - { key: ADMIN_EMAIL, sync: false }
+      - { key: SMTP_HOST, sync: false }
+      - { key: SMTP_PORT, sync: false }
+      - { key: SMTP_USER, sync: false }
+      - { key: SMTP_PASS, sync: false }
+      - { key: SMTP_FROM, sync: false }
+      - { key: NOTIFY_EMAIL, sync: false }
+      - { key: SENTRY_DSN, sync: false }
 ```
 
-**Secrets** (set via `fly secrets set` — never in fly.toml):
+### 2.2 One-time setup (Owner, after signup)
 
-- `MONGODB_URI`, `FRONTEND_URL`
-- `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`
-- `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_EMAIL`
-- `SMTP_*`, `NOTIFY_EMAIL`
-- `SENTRY_DSN`, `SENTRY_ENVIRONMENT=production`, `SENTRY_RELEASE=<git-sha>`
+1. <https://render.com> — sign in with GitHub (no credit card required).
+2. **New +** → **Blueprint** → pick the `mojingweb` repo → Render detects
+   `render.yaml` and proposes the `modelzone-api` service.
+3. Fill in the `sync: false` secrets when prompted.
+4. **Deploy**. First build takes 4–8 min (Docker cold-cache).
+5. Copy the resulting URL (`https://modelzone-api.onrender.com`) into
+   Vercel as `NEXT_PUBLIC_BACKEND_URL` (Prod + Preview + Dev).
 
-**Healthchecks**: `/api/health` (liveness), `/api/ready` (readiness).
+### 2.3 Idle-sleep mitigation
+
+Render free tier sleeps after **15 min** of no HTTP traffic. Cold start
+~30 s. Two layers keep the chat alive:
+
+1. **External ping**: schedule a free cron at <https://cron-job.org> or
+   <https://uptimerobot.com> hitting `/api/health` every 5 min.
+2. **Client keepalive**: Socket.io `pingInterval` tightened to 10 min in
+   `ChatWidget.tsx` during Week 2.
+
+### 2.4 Healthchecks
+
+- `/api/health` — liveness (Render's `healthCheckPath`).
+- `/api/ready` — readiness (Mongo ping). Monitored via Sentry, not wired
+  to Render health (a transient Atlas blip should not kill the pod).
 
 ---
 
 ## 3 · Database → MongoDB Atlas
 
 - Cluster tier: **M0** (free, 512 MB).
-- Network access: add `0.0.0.0/0` initially (Fly.io egress is dynamic);
-  tighten to Fly's egress CIDR once confirmed.
+- Network access: add `0.0.0.0/0` initially (Render free tier egress is
+  dynamic and not published); tighten when we upgrade off free tier.
 - Database user: dedicated `modelzone-api` user with `readWrite` on the
   `modelzone` database only.
 - Upgrade trigger: **M10** once DB > 400 MB **or** backups become
@@ -141,11 +165,12 @@ primary_region = "hkg"
 2. DNS records:
    - `@` → CNAME → `cname.vercel-dns.com` (orange-cloud)
    - `www` → CNAME → `cname.vercel-dns.com` (orange-cloud)
-   - `api` → CNAME → `modelzone-api.fly.dev` (orange-cloud once we confirm
-     WebSockets traverse; keep grey-cloud if any issues)
+   - `api` → CNAME → `modelzone-api.onrender.com` — keep **grey-cloud / DNS
+     only**: Render manages its own TLS and orange-cloud may break the
+     Socket.io upgrade on free tier.
 3. SSL/TLS mode: **Full (strict)**.
 4. Always Use HTTPS: **On**. TLS 1.3: **On**. HSTS: already emitted by Next
-   headers + Fly — no need to duplicate.
+   headers + Render — no need to duplicate.
 5. Bot Fight Mode: **On** (free tier).
 6. Page Rules:
    - `/_next/*` → Cache Level: Cache Everything, Edge Cache TTL: 1 month.
@@ -192,14 +217,68 @@ pnpm --filter=frontend start
 ## 7 · Roll-back
 
 - **Frontend**: `vercel rollback <deployment-id>` — 30-day retention.
-- **Backend**: `fly releases list` then `fly deploy --image <previous-image>`
-  or `fly machine update --image ...`.
+- **Backend**: Render dashboard → `modelzone-api` → **Deploys** → pick any
+  past successful deploy → **Rollback**. Render keeps the last ~50 builds.
 - **Database**: Atlas point-in-time restore (M10+) or daily snapshots
   (all tiers). For V1 M0 accept RPO = 24 h.
 
 ---
 
-## 8 · Legacy
+## Appendix A · Future Fly.io migration (when card access is solved)
+
+Per ADR-0011, backend moves to Fly.io once the Owner has a usable card.
+Migration is a half-day of work:
+
+1. `fly launch --dockerfile docker/Dockerfile.api --region hkg --no-deploy`
+   (review the generated `fly.toml`, paste canonical one below).
+2. `fly secrets set MONGODB_URI=... JWT_ACCESS_SECRET=... ...` (same set of
+   secrets as Render).
+3. `fly deploy`.
+4. Flip Cloudflare `api` CNAME from `modelzone-api.onrender.com` →
+   `modelzone-api.fly.dev`.
+5. Update Vercel `NEXT_PUBLIC_BACKEND_URL` if the vanity host changes;
+   otherwise no-op.
+6. Wait 24 h to confirm no regressions → delete the Render service.
+
+Canonical `fly.toml` for that future migration:
+
+```toml
+# fly.toml — committed only when migration starts
+app = "modelzone-api"
+primary_region = "hkg"
+
+[build]
+  dockerfile = "docker/Dockerfile.api"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "4000"
+  LOG_LEVEL = "info"
+
+[[services]]
+  internal_port = 4000
+  protocol = "tcp"
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0  # bump to 1 ($1.94/mo) if cold-start hurts
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [services.http_checks]
+    path = "/api/health"
+    interval = "30s"
+    timeout = "2s"
+```
+
+---
+
+## Appendix B · Legacy prototype topology
 
 The earlier Railway + Redis target is archived in
 [`legacy/DEPLOY-railway.md`](./legacy/DEPLOY-railway.md) for reference only.

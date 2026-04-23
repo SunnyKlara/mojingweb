@@ -1,0 +1,36 @@
+# render.yaml — Infrastructure-as-Code for Render.com
+# See ADR-0011 and docs/DEPLOY.md §2 for the full rationale.
+# First-time deploy: New + → Blueprint → pick this repo.
+# Secrets (sync: false) are set in the Render dashboard, not here.
+services:
+  - type: web
+    name: modelzone-api
+    runtime: docker
+    repo: https://github.com/SunnyKlara/mojingweb
+    branch: main
+    region: singapore
+    plan: free
+    dockerfilePath: ./docker/Dockerfile.api
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - { key: NODE_ENV, value: production }
+      - { key: PORT, value: 4000 }
+      - { key: LOG_LEVEL, value: info }
+      - { key: FRONTEND_URL, value: https://modelzone-tawny.vercel.app }
+      - { key: SENTRY_ENVIRONMENT, value: production }
+      # ---- Secrets below: set in the Render dashboard ----
+      - { key: MONGODB_URI, sync: false }
+      - { key: JWT_ACCESS_SECRET, sync: false }
+      - { key: JWT_REFRESH_SECRET, sync: false }
+      - { key: ADMIN_USERNAME, sync: false }
+      - { key: ADMIN_PASSWORD, sync: false }
+      - { key: ADMIN_EMAIL, sync: false }
+      - { key: SMTP_HOST, sync: false }
+      - { key: SMTP_PORT, sync: false }
+      - { key: SMTP_USER, sync: false }
+      - { key: SMTP_PASS, sync: false }
+      - { key: SMTP_FROM, sync: false }
+      - { key: NOTIFY_EMAIL, sync: false }
+      - { key: SENTRY_DSN, sync: false }

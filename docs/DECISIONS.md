@@ -9,6 +9,68 @@ Format: `ADR-NNNN · [short title]` · status (`accepted` / `superseded by ADR-X
 
 ---
 
+## ADR-0011 · Backend host pivot Fly.io → Render for V1 (card-access constraint) · `accepted` · 2026-04-23
+
+**Context**
+
+- ADR-0002 locked V1 backend to Fly.io. Fly.io requires a credit card on
+  signup (even for the hobby plan with $5/mo free credit).
+- The Owner cannot bind a usable card within the Week 2 window:
+  - Only holds a Ping An CNY debit card (UnionPay-only, declined by Fly.io).
+  - Credit card applications are not approved at present.
+  - WildCard and similar virtual-USD-VISA services for mainland Chinese
+    developers **discontinued their card product** in 2025 under regulatory
+    pressure. Only the "AI subscription proxy" business remains on
+    `bewildcard.com`.
+  - Overseas real bank accounts (ZA Bank / Mox HK) require a 港澳通行证 or
+    in-person visit, not feasible in Week 2.
+- §3 of `PROMPT-ENTERPRISE-REBUILD.md` allows "Fly.io or Render" for V1 —
+  Render is an acceptable target by charter.
+
+**Decision**
+
+- Week 2 ships backend on **Render.com free Web Service tier**.
+- Region: `singapore` (closest free region to zh-CN audience).
+- Repo already has `docker/Dockerfile.api`, so Render will deploy via Docker
+  build — no Render-specific config file needed beyond a `render.yaml`
+  (Infrastructure-as-Code, committed).
+- Socket.io is preserved via client-side keep-alive ping (~10 min interval)
+  that prevents Render's 15-min idle sleep from dropping live chat
+  connections.
+
+**Alternatives considered**
+
+- **Continue waiting on Fly.io card access**: rejected. Blocks Week 2
+  demo. Week 5 LLM integration also needs a card, so we'd be blocked
+  twice. Solving the card problem is separate and long-running (apply
+  for a VISA credit card, or open an HK bank account with 港澳通行证) and
+  happens in parallel with delivery.
+- **Koyeb free tier**: smaller free allowance, less community tooling,
+  marginal gain over Render for this use-case.
+- **Self-host on a Chinese cloud (Aliyun / Tencent)**: violates the charter
+  "primary audience cares about foreign reach" and adds ICP-filing overhead.
+
+**Consequences**
+
+- Week 2 task list rewrites "Fly.io deploy" → "Render deploy" (same scope,
+  different knobs). See `docs/week2/PLAN.md`.
+- Cold-start penalty: **~30 s on first request after 15 min idle**. Owner
+  accepts this for V1 brand site. Mitigation: a 5-minute keep-alive ping
+  from a free uptime monitor (Cron-Job.org / UptimeRobot) against
+  `/api/health` is scheduled as part of deploy.
+- Free tier caps at **750 hours/month** of running time per service — a
+  single 24/7 backend fits but leaves no headroom for a staging mirror.
+  Staging will piggy-back on preview deploys only.
+- When a usable card materialises (Owner track), migration Render → Fly.io
+  is ≤ 1 day of work (same Dockerfile, different host); documented in
+  `docs/DEPLOY.md` → "Appendix: future Fly.io migration".
+- Week 5 LLM integration plan adds a fallback: if Owner still has no card,
+  route traffic through an Alipay-accepting LLM proxy (API2D or similar),
+  accepting the ~25% price premium. Decision gate at Week 4 end, see
+  ADR-0004.
+
+---
+
 ## ADR-0001 · pnpm version pinned to 9.x · `accepted` · 2026-04-23
 
 **Context**
@@ -42,7 +104,7 @@ Format: `ADR-NNNN · [short title]` · status (`accepted` / `superseded by ADR-X
 
 ---
 
-## ADR-0002 · Backend host = Fly.io (V1) · `accepted` · 2026-04-23
+## ADR-0002 · Backend host = Fly.io (V1) · `superseded by ADR-0011` · 2026-04-23
 
 **Context**
 
