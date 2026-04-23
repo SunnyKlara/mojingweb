@@ -1,75 +1,41 @@
 'use client'
-import { useTranslations } from 'next-intl'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { ArrowRight, Sparkles } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ArrowRight } from 'lucide-react'
 
-const fadeUp = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-}
-
+/**
+ * Hero = the /brand/1.png marketing poster rendered full-bleed.
+ * The image already carries its own typography ("WindCheaser 64 模型风洞 · 定义 气动美学").
+ * We add nothing on top except a subtle floating CTA pill near the bottom.
+ */
 export function Hero() {
-  const t = useTranslations('hero')
   return (
-    <section className="relative overflow-hidden pb-16 pt-24 sm:pt-32">
-      <div className="grid-bg radial-fade absolute inset-0 opacity-70" aria-hidden />
-      <div
-        className="bg-primary/10 pointer-events-none absolute left-1/2 top-0 -z-10 h-[600px] w-[900px] -translate-x-1/2 rounded-full blur-3xl"
-        aria-hidden
-      />
-      <div className="container-prose relative">
-        <div className="mx-auto max-w-3xl text-center">
-          <motion.div
-            initial={fadeUp.initial}
-            animate={fadeUp.animate}
-            transition={{ duration: 0.4 }}
+    <section className="relative w-full overflow-hidden bg-black">
+      <div className="relative w-full">
+        <Image
+          src="/brand/1.png"
+          alt="Wind Chaser 64 · 模型风洞 · 定义 气动美学"
+          width={2048}
+          height={1536}
+          priority
+          sizes="100vw"
+          className="block h-auto w-full"
+        />
+        {/* Floating CTA pill bottom-center */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute inset-x-0 bottom-6 flex justify-center md:bottom-12"
+        >
+          <a
+            href="#buy"
+            className="inline-flex items-center gap-2 rounded-full bg-white/95 px-6 py-3 text-sm font-semibold text-black shadow-2xl backdrop-blur transition-colors hover:bg-white md:px-7 md:py-3.5 md:text-base"
           >
-            <div className="bg-background/60 text-muted-foreground inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs backdrop-blur">
-              <Sparkles className="text-primary h-3.5 w-3.5" />
-              <span>{t('badge')}</span>
-            </div>
-          </motion.div>
-
-          <motion.h1
-            className="mt-6 text-4xl font-semibold tracking-tight sm:text-6xl"
-            initial={fadeUp.initial}
-            animate={fadeUp.animate}
-            transition={{ duration: 0.4, delay: 0.05 }}
-          >
-            {t('titleLine1')}
-            <br />
-            <span className="from-primary bg-gradient-to-r via-blue-500 to-cyan-400 bg-clip-text text-transparent">
-              {t('titleLine2')}
-            </span>
-          </motion.h1>
-
-          <motion.p
-            className="text-muted-foreground mx-auto mt-6 max-w-xl text-base leading-relaxed sm:text-lg"
-            initial={fadeUp.initial}
-            animate={fadeUp.animate}
-            transition={{ duration: 0.4, delay: 0.1 }}
-          >
-            {t('description')}
-          </motion.p>
-
-          <motion.div
-            className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
-            initial={fadeUp.initial}
-            animate={fadeUp.animate}
-            transition={{ duration: 0.4, delay: 0.15 }}
-          >
-            <Button asChild size="lg" className="group">
-              <a href="#contact">
-                {t('primaryCta')}
-                <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
-              </a>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <a href="#cases">{t('secondaryCta')}</a>
-            </Button>
-          </motion.div>
-        </div>
+            立即购买 · Wind Chaser 64
+            <ArrowRight className="h-4 w-4" />
+          </a>
+        </motion.div>
       </div>
     </section>
   )

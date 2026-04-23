@@ -2,60 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * ModelZone · Wind Chaser 64 Design System
+ *
+ * Philosophy: Pure monochrome premium. White product, black stage.
+ * Inspired by Apple / Leica / Bang & Olufsen / Teenage Engineering (monochrome mode).
+ *
+ * No tri-palette. No gradient circus. Real photography carries the color.
+ */
+
 @layer base {
   :root {
+    /* Light mode — pure paper */
     --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --foreground: 0 0% 7%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 0 0% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 221 83% 53%;
+    --popover-foreground: 0 0% 7%;
+
+    /* Primary = near-black (works on white) */
+    --primary: 0 0% 9%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 84% 60%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 9%;
+
+    /* Single functional red (warning / notice dot) — used sparingly */
+    --destructive: 4 77% 49%; /* #E1251B */
     --destructive-foreground: 0 0% 100%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 83% 53%;
-    --radius: 0.75rem;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 9%;
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: 222 47% 5%;
-    --foreground: 213 31% 91%;
-    --card: 222 47% 7%;
-    --card-foreground: 213 31% 91%;
-    --popover: 222 47% 7%;
-    --popover-foreground: 213 31% 91%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 5%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 213 31% 91%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 17%;
-    --accent-foreground: 213 31% 91%;
-    --destructive: 0 63% 40%;
+    /* Dark mode — deep stage black, matches product photography */
+    --background: 0 0% 4%; /* #0A0A0A */
+    --foreground: 0 0% 98%;
+    --card: 0 0% 7%; /* #121212 */
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Primary = pure white on black */
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 7%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 62%;
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 4 85% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 217 33% 20%;
-    --input: 217 33% 20%;
-    --ring: 217 91% 60%;
+
+    --border: 0 0% 16%;
+    --input: 0 0% 16%;
+    --ring: 0 0% 98%;
   }
 
   * {
     @apply border-border;
   }
-
   html {
     @apply scroll-smooth;
   }
-
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings:
@@ -63,9 +83,8 @@
       'calt' 1,
       'ss01' 1;
   }
-
   ::selection {
-    @apply bg-primary/20 text-foreground;
+    @apply bg-foreground text-background;
   }
 }
 
@@ -73,15 +92,52 @@
   .container-prose {
     @apply mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8;
   }
-
-  .radial-fade {
-    mask-image: radial-gradient(circle at center, black 40%, transparent 75%);
+  .container-wide {
+    @apply mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10;
   }
 
-  .grid-bg {
-    background-image:
-      linear-gradient(to right, hsl(var(--border) / 0.5) 1px, transparent 1px),
-      linear-gradient(to bottom, hsl(var(--border) / 0.5) 1px, transparent 1px);
-    background-size: 32px 32px;
+  /* Big display typography — echoes the Chinese posters (加粗黑体) */
+  .text-display {
+    font-feature-settings:
+      'ss01' 1,
+      'ss02' 1,
+      'cv11' 1;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+    font-weight: 800;
+  }
+
+  .nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Marquee */
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .animate-marquee {
+    animation: marquee 40s linear infinite;
+  }
+
+  /* Subtle vignette for product hero stages */
+  .vignette {
+    mask-image: radial-gradient(ellipse at center, black 50%, transparent 100%);
+  }
+
+  /* Brand red dot marker — tiny accent, used once per section maximum */
+  .dot-red::after {
+    content: '';
+    display: inline-block;
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 9999px;
+    background: hsl(var(--destructive));
+    margin-left: 0.15em;
+    vertical-align: 0.15em;
   }
 }

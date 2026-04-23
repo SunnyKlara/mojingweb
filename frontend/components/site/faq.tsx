@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/accordion'
 import { Section } from './section'
 
-const KEYS = ['q1', 'q2', 'q3', 'q4', 'q5'] as const
+const KEYS = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6'] as const
 
 export function FAQ() {
   const t = useTranslations('faq')

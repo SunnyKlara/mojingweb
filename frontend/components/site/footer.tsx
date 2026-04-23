@@ -1,7 +1,7 @@
 'use client'
 import { useTranslations } from 'next-intl'
-import { Globe } from 'lucide-react'
 import { Link } from '@/i18n/routing'
+import { Logo } from '@/components/site/logo'
 
 export function Footer() {
   const t = useTranslations('footer')
@@ -10,56 +10,60 @@ export function Footer() {
     {
       title: t('columns.product'),
       links: [
-        { label: t('links.marketExpansion'), href: '#services' },
-        { label: t('links.agents'), href: '#services' },
-        { label: t('links.supplyChain'), href: '#services' },
+        { label: t('links.windchaser'), href: '#buy' },
+        { label: t('links.accessories'), href: '#buy' },
+        { label: t('links.specs'), href: '#specs' },
+      ],
+    },
+    {
+      title: t('columns.learn'),
+      links: [
+        { label: t('links.gallery'), href: '/cases' },
+        { label: t('links.journal'), href: '/blog' },
       ],
     },
     {
       title: t('columns.company'),
       links: [
-        { label: t('links.aboutUs'), href: '#about' },
-        { label: t('links.cases'), href: '#cases' },
-        { label: t('links.contactUs'), href: '#contact' },
-      ],
-    },
-    {
-      title: t('columns.resources'),
-      links: [
-        { label: t('links.blog'), href: '/blog' },
-        { label: t('links.whitepapers'), href: '/resources' },
-        { label: t('links.faq'), href: '#faq' },
+        { label: t('links.about'), href: '#' },
+        { label: t('links.wholesale'), href: '#contact' },
+        { label: t('links.support'), href: '#contact' },
+        { label: t('links.contact'), href: '#contact' },
       ],
     },
     {
       title: t('columns.legal'),
       links: [
-        { label: t('links.privacy'), href: '/privacy' },
-        { label: t('links.terms'), href: '/terms' },
+        { label: t('links.privacy'), href: '#' },
+        { label: t('links.terms'), href: '#' },
+        { label: t('links.warranty'), href: '#' },
       ],
     },
   ]
 
   return (
-    <footer className="bg-muted/30 border-t">
-      <div className="container-prose py-12">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-6">
+    <footer className="bg-background border-t">
+      <div className="container-wide py-16">
+        <div className="grid grid-cols-2 gap-10 md:grid-cols-6 md:gap-8">
           <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground grid h-8 w-8 place-items-center rounded-lg">
-                <Globe className="h-4 w-4" />
-              </span>
-              <span className="font-semibold">GlobalBridge</span>
+            <Link href="/" aria-label="ModelZone home">
+              <Logo />
             </Link>
-            <p className="text-muted-foreground mt-3 max-w-xs text-sm">{t('tagline')}</p>
+            <p className="text-muted-foreground mt-4 max-w-xs text-sm">{t('tagline')}</p>
+            <p className="text-muted-foreground mt-4 text-[11px] tracking-wide">{t('address')}</p>
           </div>
           {columns.map((col) => (
             <div key={col.title}>
-              <h4 className="mb-3 text-sm font-semibold">{col.title}</h4>
-              <ul className="text-muted-foreground space-y-2 text-sm">
+              <h4 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em]">
+                {col.title}
+              </h4>
+              <ul className="space-y-3 text-sm">
                 {col.links.map((l) => (
                   <li key={l.label}>
-                    <a href={l.href} className="hover:text-foreground">
+                    <a
+                      href={l.href}
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
                       {l.label}
                     </a>
                   </li>
@@ -68,9 +72,11 @@ export function Footer() {
             </div>
           ))}
         </div>
-        <div className="text-muted-foreground mt-10 flex flex-col items-start justify-between gap-2 border-t pt-6 text-xs sm:flex-row sm:items-center">
+        <div className="text-muted-foreground mt-14 flex flex-col items-start justify-between gap-2 border-t pt-6 text-[11px] sm:flex-row sm:items-center">
           <span>{t('copyright', { year: new Date().getFullYear() })}</span>
-          <span>{t('madeWith')}</span>
+          <div className="flex items-center gap-4 font-mono tracking-wider opacity-70">
+            <span>ModelZone · EST. 2024</span>
+          </div>
         </div>
       </div>
     </footer>

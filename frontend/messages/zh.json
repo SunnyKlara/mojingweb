@@ -1,214 +1,233 @@
 {
   "meta": {
-    "title": "GlobalBridge — 连接全球市场，助力企业出海",
-    "titleTemplate": "%s · GlobalBridge",
-    "description": "专业的 B2B 全球化服务机构，为中国企业提供海外市场拓展、代理商合作与供应链整合。",
-    "siteName": "GlobalBridge"
+    "title": "ModelZone · Wind Chaser 64 | 1:64 模型风洞",
+    "titleTemplate": "%s · ModelZone",
+    "description": "ModelZone 模境出品 Wind Chaser 64，专注 1:64 车模的桌面级风洞。定义气动美学，保卫你的热爱。",
+    "siteName": "ModelZone · 模境"
+  },
+  "announcement": {
+    "message": "Wind Chaser 64 现已发售 · 180 天质保 · 7 天无理由退货",
+    "cta": "立即选购"
   },
   "nav": {
-    "about": "关于我们",
-    "services": "服务",
-    "cases": "案例",
-    "blog": "博客",
-    "faq": "常见问题",
+    "product": "产品",
+    "specs": "参数",
+    "gallery": "作品",
+    "support": "支持",
+    "journal": "日志",
     "contact": "联系",
-    "cta": "免费咨询",
-    "toggleMenu": "切换菜单",
+    "cta": "购买 Wind Chaser 64",
+    "toggleMenu": "菜单",
     "toggleTheme": "切换主题",
     "languageSwitcher": "语言"
   },
   "hero": {
-    "badge": "专注 B2B 全球化服务 · 已服务 500+ 企业",
-    "titleLine1": "连接全球市场",
-    "titleLine2": "助力企业出海",
-    "description": "我们为中国企业提供专业的海外市场拓展、代理商合作与供应链整合服务，让您的业务快速走向世界。",
-    "primaryCta": "立即咨询",
-    "secondaryCta": "查看案例"
+    "eyebrow": "WIND CHASER 64 · 1:64 模型风洞",
+    "titleLine1": "定义",
+    "titleLine2": "气动美学。",
+    "description": "微观气流的隐秘形态，正突破固有认知的桎梏。以方寸之洞，洞见风之肌理——为每一位车模热爱者，解锁更真切的科学视界。",
+    "primaryCta": "立即购买",
+    "secondaryCta": "观看视频",
+    "signature": "深圳市模镜工作室 · 荣誉出品"
   },
-  "logoCloud": {
-    "title": "受到 500+ 企业的信赖"
-  },
-  "about": {
-    "eyebrow": "关于我们",
-    "title": "深耕全球化服务 8 年",
-    "paragraph1": "GlobalBridge 成立于 2016 年，是一家专注于帮助中国企业开拓海外市场的专业服务机构。我们在欧洲、北美、东南亚等地区建立了广泛的合作网络。",
-    "paragraph2": "团队核心成员均拥有 10 年以上跨境业务经验，深刻理解不同市场的文化差异与商业规则，为客户提供真正落地的解决方案。",
-    "bullets": {
-      "b1": "专业的本地化团队",
-      "b2": "覆盖 30+ 国家的合作网络",
-      "b3": "全程跟踪服务与支持",
-      "b4": "透明的合作机制",
-      "b5": "丰富的跨境业务经验",
-      "b6": "定制化的落地方案"
+  "specStrip": {
+    "items": {
+      "outer": { "value": "220 × 99 × 59", "unit": "mm", "label": "外部尺寸" },
+      "inner": { "value": "134 × 54 × 33", "unit": "mm", "label": "腔内体积" },
+      "power": { "value": "12V · 36W", "unit": "", "label": "DC 适配器" },
+      "oil": { "value": "30", "unit": "ml", "label": "烟油仓容量" }
     }
   },
-  "features": {
-    "eyebrow": "我们的服务",
-    "title": "全方位出海解决方案",
-    "description": "从市场调研到落地运营，覆盖企业全球化的每个关键环节。",
-    "items": {
-      "market": {
-        "title": "海外市场拓展",
-        "desc": "协助企业进入欧美、东南亚等海外市场，提供本地化运营策略与资源对接。"
-      },
-      "partners": {
-        "title": "代理商合作",
-        "desc": "全球代理商招募与管理，构建稳定的分销网络，快速扩大市场覆盖。"
-      },
-      "supply": {
-        "title": "供应链整合",
-        "desc": "整合优质供应商资源，提供从采购到交付的一站式供应链解决方案。"
-      },
-      "compliance": {
-        "title": "合规与风控",
-        "desc": "熟悉目标市场法规，帮助企业规避出海风险，保障业务合规稳健。"
-      },
-      "growth": {
-        "title": "增长策略咨询",
-        "desc": "数据驱动的海外增长路径规划，从定位到落地的全链路服务。"
-      },
-      "team": {
-        "title": "本地团队支持",
-        "desc": "覆盖 30+ 国家的本地顾问团队，随时响应您的业务需求。"
-      }
+  "feature1": {
+    "eyebrow": "专注 1:64",
+    "title": "精准适配您的爱车。",
+    "body": "134 × 54 × 33mm 腔内空间，为所有主流 1:64 车模量身定制——Hot Wheels、Tomica、Mini GT、Tarmac Works……每一辆都可以走进属于它的风洞。",
+    "tag": "适配 1:64"
+  },
+  "feature2": {
+    "eyebrow": "全透明烟雾仓",
+    "title": "30ml 长续航，一次灌满，尽情观察。",
+    "body": "独立可拆透明烟雾仓，30 毫升矿脂（凡士林）烟油支持长时间连续演示。加注简单，清洁维护无压力。",
+    "tag": "烟雾可视化"
+  },
+  "feature3": {
+    "eyebrow": "精心设计",
+    "title": "您的下一件精品桌搭。",
+    "body": "一体化注塑 ABS 外壳，220 × 99 × 59mm 紧凑尺寸、476g 称手重量。放在键盘旁、显示器下、车模架之间——大小恰到好处。",
+    "tag": "桌面级"
+  },
+  "feature4": {
+    "eyebrow": "科学感知",
+    "title": "让空气动力学，触手可及。",
+    "body": "整流器 × 3、初效过滤片、活性炭 + PM2.5——稳定、清洁、可控的层流气体。把真车风洞实验室的原理，浓缩进一个桌面装置。",
+    "tag": "真实层流"
+  },
+  "specsTable": {
+    "eyebrow": "产品参数",
+    "title": "一目了然。",
+    "rows": {
+      "brand": { "k": "品牌", "v": "ModelZone 模境创新科技工作室" },
+      "size": { "k": "外部尺寸", "v": "220 × 99 × 59 mm" },
+      "weight": { "k": "重量", "v": "476 g" },
+      "chamber": { "k": "腔内尺寸", "v": "134 × 54 × 33 mm" },
+      "oil": { "k": "烟油材质", "v": "矿脂（凡士林）· 30 ml 油箱" },
+      "voltage": { "k": "输入电压 / 功率", "v": "12V · 36W · 50Hz" },
+      "material": { "k": "工艺 / 材质", "v": "一体化注塑 · ABS" },
+      "power": { "k": "供电方式", "v": "DC 电源适配器" },
+      "made": { "k": "产地", "v": "中国 · 广东 · 东莞" },
+      "cert": { "k": "质量认证", "v": "CE · FCC · RoHS" }
     }
   },
-  "stats": {
-    "clients": "合作企业",
-    "countries": "覆盖国家",
-    "years": "行业经验",
-    "satisfaction": "客户满意度"
-  },
-  "cases": {
-    "eyebrow": "成功案例",
-    "title": "他们选择了我们",
-    "description": "真实的客户故事，真实的业务增长。",
+  "warranty": {
+    "eyebrow": "售后保障",
+    "title": "放心收藏，专心热爱。",
     "items": {
-      "manufacturing": {
-        "industry": "工业设备",
-        "name": "某制造企业",
-        "result": "6 个月内成功进入欧洲市场，签约代理商 12 家，年销售额突破千万。"
-      },
-      "saas": {
-        "industry": "SaaS",
-        "name": "某科技公司",
-        "result": "通过我们的资源对接，完成首轮海外融资，估值提升 3 倍。"
-      },
-      "consumer": {
-        "industry": "消费电子",
-        "name": "某消费品品牌",
-        "result": "东南亚市场年销售额增长 300%，成为区域头部品牌之一。"
-      }
+      "w1": { "k": "180 天", "v": "整机质保" },
+      "w2": { "k": "7 天", "v": "无理由退货" },
+      "w3": { "k": "寄修", "v": "人为损坏可修" }
+    }
+  },
+  "package": {
+    "eyebrow": "包装清单",
+    "title": "WindChaser 64 · 开箱一览。",
+    "items": {
+      "i1": "风洞主机 × 1",
+      "i2": "DC 12V 3A 电源适配器",
+      "i3": "整流器 × 3",
+      "i4": "烟油加注筒",
+      "i5": "烟雾油",
+      "i6": "初效过滤片 · 活性炭 + PM2.5",
+      "i7": "说明书（含三包凭证）"
+    }
+  },
+  "gallery": {
+    "eyebrow": "来自社区",
+    "title": "你的下一件精品桌搭。",
+    "description": "从工作台到拍摄棚，玩家们都在怎样使用 Wind Chaser 64。"
+  },
+  "press": {
+    "eyebrow": "科学的模样",
+    "title": "从来不止一种。",
+    "quotes": {
+      "q1": "把高深的空气动力学，化为触手可及的真实体验。",
+      "q2": "让科学原理、实操实验、创意创作，每一处都尽显惊艳。",
+      "q3": "以方寸之洞，洞见风之肌理。"
     }
   },
   "faq": {
     "eyebrow": "常见问题",
-    "title": "你可能关心的",
+    "title": "你可能会问。",
     "items": {
       "q1": {
-        "q": "服务周期一般多长？",
-        "a": "根据目标市场和业务类型不同，一般从 3 个月的市场调研到 12 个月以上的深度落地，我们会在启动前给出明确的时间规划。"
+        "q": "支持哪些车模？",
+        "a": "Wind Chaser 64 专为 1:64 比例车模设计，适配 Hot Wheels、Matchbox、Tomica、Mini GT、Tarmac Works 等主流品牌。腔内尺寸 134 × 54 × 33mm。"
       },
       "q2": {
-        "q": "服务费用如何计算？",
-        "a": "采用「基础服务费 + 成效分成」的混合模式，我们和客户目标绑定。具体方案基于项目复杂度和资源投入评估。"
+        "q": "烟油多久加一次？",
+        "a": "30ml 油箱支持较长时间连续使用，加注简单，说明书提供详细图解。烟油为矿脂（凡士林）基材，安全无毒。"
       },
       "q3": {
-        "q": "你们主要服务哪些行业？",
-        "a": "工业制造、消费品、消费电子、跨境 SaaS 是我们的核心经验领域，也欢迎其他行业的企业沟通。"
+        "q": "电源规格？",
+        "a": "标配 DC 12V 3A 适配器，输入 36W / 50Hz。产品通过 CE、FCC、RoHS 认证。"
       },
       "q4": {
-        "q": "如何保障客户资料安全？",
-        "a": "所有沟通记录、客户资料均加密存储，访问受 SSO 与审计日志管控。签署正式合作协议前可提供保密协议 (NDA)。"
+        "q": "发货与运输？",
+        "a": "广东东莞发货。包邮到家，收藏加购享优先发货。运费险赠送。"
       },
       "q5": {
-        "q": "能否只购买单项服务？",
-        "a": "可以。我们支持模块化采购，也可在合作过程中按需增补服务。"
+        "q": "售后如何？",
+        "a": "180 天整机质保、7 天无理由退货、人为损坏可寄修。晒图发客服有惊喜。"
+      },
+      "q6": {
+        "q": "能否批量采购？",
+        "a": "支持经销商、车模店、教育机构批量合作，欢迎通过下方表单联系我们获取方案。"
       }
     }
   },
-  "cta": {
-    "eyebrow": "联系我们",
-    "title": "准备好开始出海了吗？",
-    "description": "留下您的联系方式，我们的顾问会在 1 个工作日内与您联系。",
-    "email": "发送邮件",
-    "phone": "+86 400-000-0000"
+  "newsletter": {
+    "eyebrow": "加入模境",
+    "title": "新品与工坊，第一时间。",
+    "description": "新品上线、玩家投稿、产品升级——每月一封短邮件，仅此而已。",
+    "placeholder": "你的邮箱",
+    "cta": "订阅",
+    "consent": "订阅即代表你同意我们的隐私政策。随时可退订。"
   },
   "form": {
-    "name": "姓名",
-    "namePlaceholder": "您的姓名",
+    "name": "称呼",
+    "namePlaceholder": "你的名字",
     "email": "邮箱",
-    "emailPlaceholder": "you@company.com",
-    "company": "公司",
-    "companyPlaceholder": "您所在的公司",
-    "phone": "电话",
+    "emailPlaceholder": "you@email.com",
+    "company": "机构（可选）",
+    "companyPlaceholder": "车模店 / 工作室 / 学校 / 经销商",
+    "phone": "电话（可选）",
     "phonePlaceholder": "可选",
-    "message": "留言",
-    "messagePlaceholder": "请简要描述您的需求",
-    "submit": "提交咨询",
-    "submitting": "提交中…",
-    "success": "提交成功，我们会尽快与您联系",
-    "failure": "提交失败，请稍后重试",
-    "required": "此项必填"
+    "message": "想了解什么？",
+    "messagePlaceholder": "批发咨询、售后、媒体合作、技术问题……",
+    "submit": "发送",
+    "submitting": "发送中…",
+    "success": "已收到——一个工作日内回复。",
+    "failure": "发送失败，请稍后重试或邮件至 hello@modelzone.com",
+    "required": "必填"
   },
   "footer": {
-    "tagline": "专业的 B2B 全球化服务，连接中国企业与世界市场。",
+    "tagline": "定义 · 气动美学。保卫你的热爱。",
     "columns": {
       "product": "产品",
-      "company": "公司",
-      "resources": "资源",
-      "legal": "法律"
+      "learn": "了解",
+      "company": "模境",
+      "legal": "条款"
     },
     "links": {
-      "marketExpansion": "海外拓展",
-      "agents": "代理商合作",
-      "supplyChain": "供应链整合",
-      "aboutUs": "关于我们",
-      "cases": "案例",
-      "contactUs": "联系我们",
-      "blog": "博客",
-      "whitepapers": "白皮书",
-      "faq": "FAQ",
-      "privacy": "隐私政策",
-      "terms": "服务条款"
+      "windchaser": "Wind Chaser 64",
+      "accessories": "配件",
+      "specs": "产品参数",
+      "gallery": "作品集",
+      "journal": "日志",
+      "about": "关于模境",
+      "wholesale": "批发合作",
+      "support": "售后支持",
+      "contact": "联系",
+      "privacy": "隐私",
+      "terms": "条款",
+      "warranty": "三包政策"
     },
-    "copyright": "© {year} GlobalBridge. 保留所有权利。",
-    "madeWith": "为全球 B2B 建设者精心打造"
+    "copyright": "© {year} 模境创新科技工作室. 广东 · 东莞.",
+    "address": "ModelZone · 模境 · 深圳 / 东莞"
   },
   "blog": {
-    "title": "博客",
-    "subtitle": "出海实战、趋势观察与方法论",
-    "readMore": "阅读全文",
+    "title": "日志",
+    "subtitle": "工坊项目、实验记录、玩家故事",
+    "readMore": "阅读",
     "minRead": "{min} 分钟阅读",
-    "backToList": "← 返回博客列表",
-    "publishedOn": "发布于",
+    "backToList": "← 返回日志",
+    "publishedOn": "发布",
     "byAuthor": "作者"
   },
   "casesPage": {
-    "title": "客户案例",
-    "subtitle": "真实的业务成果，可复用的经验总结",
-    "viewCase": "查看案例",
-    "backToList": "← 返回案例列表",
-    "client": "客户",
-    "industry": "行业",
-    "region": "区域"
+    "title": "作品集",
+    "subtitle": "Wind Chaser 64 · 玩家场景",
+    "viewCase": "查看",
+    "backToList": "← 返回作品集",
+    "client": "作者",
+    "industry": "场景",
+    "region": "地点"
   },
   "chat": {
-    "title": "在线客服",
-    "connected": "已连接",
+    "title": "在线咨询",
+    "connected": "在线",
     "connecting": "连接中…",
-    "closeLabel": "关闭客服",
-    "openLabel": "打开客服",
-    "promptInfo": "请留下您的信息，方便我们回复您",
-    "name": "姓名（选填）",
-    "namePlaceholder": "您的姓名",
-    "email": "邮箱（选填）",
-    "emailPlaceholder": "you@example.com",
+    "closeLabel": "关闭",
+    "openLabel": "打开聊天",
+    "promptInfo": "开始前简单介绍下自己",
+    "name": "称呼",
+    "namePlaceholder": "你的名字",
+    "email": "邮箱",
+    "emailPlaceholder": "you@email.com",
     "start": "开始咨询",
-    "greeting": "您好 👋 有什么可以帮您？",
-    "inputPlaceholder": "输入消息...",
+    "greeting": "嘿——想了解 Wind Chaser 64 或批量订购？",
+    "inputPlaceholder": "随便问……",
     "send": "发送",
     "readBadge": "已读",
-    "typingIndicator": "对方正在输入…"
+    "typingIndicator": "正在输入…"
   }
 }

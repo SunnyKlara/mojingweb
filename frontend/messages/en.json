@@ -1,212 +1,231 @@
 {
   "meta": {
-    "title": "GlobalBridge — Bridge to Global Markets",
-    "titleTemplate": "%s · GlobalBridge",
-    "description": "Professional B2B globalization services helping Chinese enterprises expand overseas through market entry, agent partnerships, and supply-chain integration.",
-    "siteName": "GlobalBridge"
+    "title": "ModelZone · Wind Chaser 64 | 1:64 Scale Desktop Wind Tunnel",
+    "titleTemplate": "%s · ModelZone",
+    "description": "ModelZone presents Wind Chaser 64, a desktop wind tunnel engineered for 1:64 model cars. Defining the aesthetics of airflow. Protect what you love.",
+    "siteName": "ModelZone"
+  },
+  "announcement": {
+    "message": "Wind Chaser 64 is shipping worldwide · 180-day warranty · 7-day returns",
+    "cta": "Shop now"
   },
   "nav": {
-    "about": "About",
-    "services": "Services",
-    "cases": "Cases",
-    "blog": "Blog",
-    "faq": "FAQ",
+    "product": "Product",
+    "specs": "Specs",
+    "gallery": "Gallery",
+    "support": "Support",
+    "journal": "Journal",
     "contact": "Contact",
-    "cta": "Get Started",
-    "toggleMenu": "Toggle menu",
+    "cta": "Buy Wind Chaser 64",
+    "toggleMenu": "Menu",
     "toggleTheme": "Toggle theme",
     "languageSwitcher": "Language"
   },
   "hero": {
-    "badge": "B2B globalization experts · 500+ enterprises served",
-    "titleLine1": "Bridge to Global Markets",
-    "titleLine2": "Accelerate Your Expansion",
-    "description": "We provide Chinese enterprises with overseas market entry, agent recruitment, and supply-chain integration so you can scale globally with confidence.",
-    "primaryCta": "Talk to an expert",
-    "secondaryCta": "View case studies"
+    "eyebrow": "WIND CHASER 64 · 1:64 WIND TUNNEL",
+    "titleLine1": "Aerodynamics,",
+    "titleLine2": "redefined.",
+    "description": "A real wind tunnel, miniaturized for the car collectors who care. Watch smoke trace the surface of any 1:64 model — and see what the world's automakers have been staring at for decades.",
+    "primaryCta": "Shop now",
+    "secondaryCta": "Watch the film",
+    "signature": "Designed in Shenzhen · Crafted in Dongguan"
   },
-  "logoCloud": {
-    "title": "Trusted by 500+ enterprises worldwide"
-  },
-  "about": {
-    "eyebrow": "About us",
-    "title": "8 years of globalization expertise",
-    "paragraph1": "Founded in 2016, GlobalBridge is a specialist agency helping Chinese enterprises enter overseas markets. We operate across Europe, North America, and Southeast Asia.",
-    "paragraph2": "Our senior team brings 10+ years of cross-border experience, deeply understanding cultural and regulatory nuances to deliver executable strategies for our clients.",
-    "bullets": {
-      "b1": "Dedicated localization team",
-      "b2": "Partner network across 30+ countries",
-      "b3": "End-to-end tracking and support",
-      "b4": "Transparent engagement model",
-      "b5": "Rich cross-border experience",
-      "b6": "Tailored go-to-market plans"
+  "specStrip": {
+    "items": {
+      "outer": { "value": "220 × 99 × 59", "unit": "mm", "label": "External size" },
+      "inner": { "value": "134 × 54 × 33", "unit": "mm", "label": "Chamber volume" },
+      "power": { "value": "12V · 36W", "unit": "", "label": "DC adapter" },
+      "oil": { "value": "30", "unit": "ml", "label": "Fogger capacity" }
     }
   },
-  "features": {
-    "eyebrow": "Our services",
-    "title": "End-to-end globalization solutions",
-    "description": "From market research to operational execution — every link of your global journey is covered.",
-    "items": {
-      "market": {
-        "title": "Market Expansion",
-        "desc": "Enter European, American, and Southeast Asian markets with localized strategy and curated resources."
-      },
-      "partners": {
-        "title": "Agent Partnerships",
-        "desc": "Global agent recruitment and management to build resilient distribution networks and rapid coverage."
-      },
-      "supply": {
-        "title": "Supply Chain",
-        "desc": "Integrated supplier resources, delivering an end-to-end procurement-to-fulfillment solution."
-      },
-      "compliance": {
-        "title": "Compliance & Risk",
-        "desc": "Deep local regulatory knowledge to mitigate risk and keep your expansion compliant."
-      },
-      "growth": {
-        "title": "Growth Consulting",
-        "desc": "Data-driven overseas growth roadmaps, from positioning to on-the-ground execution."
-      },
-      "team": {
-        "title": "Local Team Support",
-        "desc": "Consultants in 30+ countries ready to respond to your business needs in real time."
-      }
+  "feature1": {
+    "eyebrow": "Focused on 1:64",
+    "title": "Built for the cars you already own.",
+    "body": "A 134 × 54 × 33mm chamber sized for every mainstream 1:64 diecast — Hot Wheels, Tomica, Mini GT, Tarmac Works. No adapters, no compromises.",
+    "tag": "1:64 only"
+  },
+  "feature2": {
+    "eyebrow": "Transparent fogger",
+    "title": "30ml of visible physics.",
+    "body": "A removable, fully transparent fog chamber runs on 30 ml of petrolatum-based oil — enough for long demos, easy to refill, food-grade safe.",
+    "tag": "Flow visualization"
+  },
+  "feature3": {
+    "eyebrow": "Desk-ready",
+    "title": "Your next desk centerpiece.",
+    "body": "Monolithic ABS shell, 220 × 99 × 59mm footprint, 476g weight. It fits between your keyboard and monitor, or on a shelf next to your collection.",
+    "tag": "Desktop scale"
+  },
+  "feature4": {
+    "eyebrow": "Clean flow",
+    "title": "The real principles, scaled down.",
+    "body": "Three flow-straighteners, a primary filter and an activated-carbon + PM2.5 stage deliver stable laminar airflow. The same physics taught in automotive wind-tunnel labs — on your desk.",
+    "tag": "Laminar flow"
+  },
+  "specsTable": {
+    "eyebrow": "Specifications",
+    "title": "Everything you need to know.",
+    "rows": {
+      "brand": { "k": "Brand", "v": "ModelZone Innovation Studio" },
+      "size": { "k": "External size", "v": "220 × 99 × 59 mm" },
+      "weight": { "k": "Weight", "v": "476 g" },
+      "chamber": { "k": "Chamber", "v": "134 × 54 × 33 mm" },
+      "oil": { "k": "Fog oil", "v": "Petrolatum · 30 ml reservoir" },
+      "voltage": { "k": "Input / Power", "v": "12V · 36W · 50Hz" },
+      "material": { "k": "Process / Material", "v": "Monolithic injection · ABS" },
+      "power": { "k": "Power supply", "v": "DC adapter (universal)" },
+      "made": { "k": "Made in", "v": "Dongguan, Guangdong · China" },
+      "cert": { "k": "Certification", "v": "CE · FCC · RoHS" }
     }
   },
-  "stats": {
-    "clients": "Enterprises",
-    "countries": "Countries",
-    "years": "Years of expertise",
-    "satisfaction": "Client satisfaction"
-  },
-  "cases": {
-    "eyebrow": "Case studies",
-    "title": "Why they chose us",
-    "description": "Real clients, real growth.",
+  "warranty": {
+    "eyebrow": "Peace of mind",
+    "title": "Collect with confidence.",
     "items": {
-      "manufacturing": {
-        "industry": "Industrial equipment",
-        "name": "A manufacturing leader",
-        "result": "Entered the European market in 6 months, onboarded 12 regional agents, and crossed 8-figure annual sales."
-      },
-      "saas": {
-        "industry": "SaaS",
-        "name": "A tech company",
-        "result": "Secured first overseas funding round through our network and 3x'd their valuation."
-      },
-      "consumer": {
-        "industry": "Consumer electronics",
-        "name": "A consumer brand",
-        "result": "Grew Southeast Asia revenue 300% YoY, becoming a top-3 regional brand."
-      }
+      "w1": { "k": "180-day", "v": "full warranty" },
+      "w2": { "k": "7-day", "v": "no-questions returns" },
+      "w3": { "k": "Repair", "v": "accidental damage covered" }
+    }
+  },
+  "package": {
+    "eyebrow": "In the box",
+    "title": "Wind Chaser 64 · unboxed.",
+    "items": {
+      "i1": "Wind tunnel main unit",
+      "i2": "DC 12V 3A adapter (universal plugs)",
+      "i3": "Flow-straighteners × 3",
+      "i4": "Fogger refill syringe",
+      "i5": "Smoke oil",
+      "i6": "Primary filter · Activated carbon + PM2.5",
+      "i7": "Manual (with warranty card)"
+    }
+  },
+  "gallery": {
+    "eyebrow": "In the wild",
+    "title": "Your next desk centerpiece.",
+    "description": "From studios to classrooms — see how collectors live with Wind Chaser 64."
+  },
+  "press": {
+    "eyebrow": "The shape of science",
+    "title": "is never just one thing.",
+    "quotes": {
+      "q1": "It turns high-end aerodynamics into something you can touch.",
+      "q2": "Principle, experiment, creation — elegance in every step.",
+      "q3": "A small cavity, and the texture of wind finally becomes visible."
     }
   },
   "faq": {
     "eyebrow": "FAQ",
-    "title": "Things you might ask",
+    "title": "Good questions.",
     "items": {
       "q1": {
-        "q": "How long does an engagement take?",
-        "a": "From 3-month market research to 12+ months of in-depth execution depending on the scope. We lock down a clear timeline before kickoff."
+        "q": "Which cars fit?",
+        "a": "Wind Chaser 64 is built specifically for 1:64 scale — Hot Wheels, Matchbox, Tomica, Mini GT, Tarmac Works, and similar. Chamber is 134 × 54 × 33mm."
       },
       "q2": {
-        "q": "How is pricing structured?",
-        "a": "A hybrid of retainer + performance share — aligned with your goals. The exact structure depends on project complexity."
+        "q": "How often do I refill the fog oil?",
+        "a": "The 30 ml reservoir supports long continuous sessions. Refill via the included syringe. The oil is petrolatum-based, food-safe and non-toxic."
       },
       "q3": {
-        "q": "Which industries do you focus on?",
-        "a": "Industrial manufacturing, consumer goods, consumer electronics, and cross-border SaaS. We welcome conversations from other sectors case-by-case."
+        "q": "What about power?",
+        "a": "Ships with a DC 12V 3A universal adapter (36W, 50Hz). CE, FCC, and RoHS certified."
       },
       "q4": {
-        "q": "How is client data protected?",
-        "a": "All communications and client data are encrypted and access is SSO-gated with full audit logs. NDAs available pre-engagement."
+        "q": "How does shipping work?",
+        "a": "Ships from Dongguan, China via DHL/EMS. Worldwide delivery typically 7–14 days. Shipping insurance included."
       },
       "q5": {
-        "q": "Can I buy a single service module?",
-        "a": "Yes. We support modular engagements and incremental add-ons as needed."
+        "q": "What's the after-sales policy?",
+        "a": "180-day full warranty, 7-day no-questions returns, and accidental-damage repair service. Send us a photo for a little surprise."
+      },
+      "q6": {
+        "q": "Bulk / wholesale?",
+        "a": "Available for resellers, model-car stores, and schools. Use the contact form below for pricing and availability."
       }
     }
   },
-  "cta": {
-    "eyebrow": "Contact",
-    "title": "Ready to go global?",
-    "description": "Leave your details and a consultant will reach out within one business day.",
-    "email": "Send email",
-    "phone": "+86 400-000-0000"
+  "newsletter": {
+    "eyebrow": "Join ModelZone",
+    "title": "Updates, never spam.",
+    "description": "New drops, workshop projects, community builds. One short email a month.",
+    "placeholder": "you@youremail.com",
+    "cta": "Subscribe",
+    "consent": "By subscribing you agree to our privacy policy. Unsubscribe anytime."
   },
   "form": {
-    "name": "Name",
-    "namePlaceholder": "Your name",
+    "name": "Your name",
+    "namePlaceholder": "Name",
     "email": "Email",
-    "emailPlaceholder": "you@company.com",
-    "company": "Company",
-    "companyPlaceholder": "Your company",
-    "phone": "Phone",
+    "emailPlaceholder": "you@email.com",
+    "company": "Company (optional)",
+    "companyPlaceholder": "Studio / school / store",
+    "phone": "Phone (optional)",
     "phonePlaceholder": "Optional",
-    "message": "Message",
-    "messagePlaceholder": "Briefly describe your needs",
-    "submit": "Submit",
-    "submitting": "Submitting…",
-    "success": "Submitted — we'll be in touch soon.",
-    "failure": "Submission failed, please try again later",
+    "message": "How can we help?",
+    "messagePlaceholder": "Wholesale, after-sales, press, technical questions…",
+    "submit": "Send",
+    "submitting": "Sending…",
+    "success": "Got it — we'll reply within one business day.",
+    "failure": "Something went wrong. Please retry or email hello@modelzone.com",
     "required": "Required"
   },
   "footer": {
-    "tagline": "Professional B2B globalization services connecting Chinese enterprises to the world.",
+    "tagline": "Defining the aesthetics of airflow. Protecting what you love.",
     "columns": {
       "product": "Product",
-      "company": "Company",
-      "resources": "Resources",
+      "learn": "Learn",
+      "company": "ModelZone",
       "legal": "Legal"
     },
     "links": {
-      "marketExpansion": "Market Expansion",
-      "agents": "Agent Partnerships",
-      "supplyChain": "Supply Chain",
-      "aboutUs": "About",
-      "cases": "Case Studies",
-      "contactUs": "Contact",
-      "blog": "Blog",
-      "whitepapers": "Whitepapers",
-      "faq": "FAQ",
+      "windchaser": "Wind Chaser 64",
+      "accessories": "Accessories",
+      "specs": "Specifications",
+      "gallery": "Gallery",
+      "journal": "Journal",
+      "about": "About ModelZone",
+      "wholesale": "Wholesale",
+      "support": "Support",
+      "contact": "Contact",
       "privacy": "Privacy",
-      "terms": "Terms"
+      "terms": "Terms",
+      "warranty": "Warranty"
     },
-    "copyright": "© {year} GlobalBridge. All rights reserved.",
-    "madeWith": "Made with care for B2B builders."
+    "copyright": "© {year} ModelZone Innovation Studio. Dongguan, China.",
+    "address": "ModelZone · Shenzhen & Dongguan, China"
   },
   "blog": {
-    "title": "Blog",
-    "subtitle": "Playbooks, trends and methodologies from the field",
-    "readMore": "Read more",
+    "title": "Journal",
+    "subtitle": "Builds, experiments, behind the scenes",
+    "readMore": "Read",
     "minRead": "{min} min read",
-    "backToList": "← Back to blog",
+    "backToList": "← Back to journal",
     "publishedOn": "Published",
     "byAuthor": "By"
   },
   "casesPage": {
-    "title": "Case Studies",
-    "subtitle": "Real business outcomes, reusable playbooks",
-    "viewCase": "View case",
-    "backToList": "← Back to cases",
-    "client": "Client",
-    "industry": "Industry",
-    "region": "Region"
+    "title": "Gallery",
+    "subtitle": "Wind Chaser 64 in the wild",
+    "viewCase": "See more",
+    "backToList": "← Back to gallery",
+    "client": "Built by",
+    "industry": "Setting",
+    "region": "Location"
   },
   "chat": {
-    "title": "Live Support",
-    "connected": "Connected",
+    "title": "Talk to us",
+    "connected": "Online",
     "connecting": "Connecting…",
     "closeLabel": "Close chat",
     "openLabel": "Open chat",
-    "promptInfo": "Leave your info so we can follow up",
-    "name": "Name (optional)",
-    "namePlaceholder": "Your name",
-    "email": "Email (optional)",
-    "emailPlaceholder": "you@example.com",
+    "promptInfo": "Quick intro before we start",
+    "name": "Your name",
+    "namePlaceholder": "Name",
+    "email": "Email",
+    "emailPlaceholder": "you@email.com",
     "start": "Start chat",
-    "greeting": "Hi 👋 how can we help?",
-    "inputPlaceholder": "Type a message...",
+    "greeting": "Hey — questions about Wind Chaser 64 or bulk orders?",
+    "inputPlaceholder": "Ask anything…",
     "send": "Send",
     "readBadge": "Read",
     "typingIndicator": "Typing…"
