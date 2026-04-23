@@ -130,6 +130,61 @@ Format: `ADR-NNNN · [short title]` · status (`accepted` / `superseded by ADR-X
 
 ---
 
+## ADR-0008 · Dependency security triage; Week 1 ships at `--audit-level=critical` · `accepted` · 2026-04-23
+
+**Context**
+
+- T3 added a `pnpm audit` CI job per §2.
+- Initial run reported **30 vulnerabilities** (3 low, 13 moderate, 13 high,
+  **1 critical**). Hard-gating at `--audit-level=high` on day 1 would red the
+  build.
+
+**Actions taken (Week 1)**
+
+- `next` `14.2.15 → 14.2.35` (latest 14.2.x patch). Fixes:
+  - Critical _Authorization Bypass in Next.js Middleware_ (GHSA-f82v-jwr5-mffw)
+    — directly affected our `frontend/middleware.ts` locale rewriter.
+  - High _Next.js Cache Key Confusion_ (GHSA-qpjv-v59x-3qc4).
+- `nodemailer` `6.10.1 → 7.0.13`. Fixed high SMTP command injection path.
+- `bcrypt` `5.1.1 → 6.0.0`. Reduced transitive `tar@6.2.1` high vulns.
+- `uuid` `10 → 14` + `@types/uuid` `10 → 11`. Fixed uuid high.
+- Side-effect: `shared/tsconfig.json` added `"types": []` to stop TS
+  auto-loading hoisted `@types/uuid` and triggering a bogus TS2688.
+
+**Result**
+
+- **30 → 12** vulnerabilities (1 low, 8 moderate, **3 high, 0 critical**).
+- All three packages (`shared`, `backend`, `frontend`) typecheck + build clean.
+
+**Remaining 3 high (tracked for Week 2)**
+
+1. **Next.js DoS with Server Components** (GHSA-q4gf-8mx6-v5v3) — requires
+   upgrade to `next ≥ 15.5.15`, i.e. Next 15 major. Breaking: App Router
+   API changes, async request APIs. Scope: 1–2 days Week 2 spike.
+2. **node-tar Symlink Path Traversal** (GHSA-9ppj-qmqm-q256 & siblings) —
+   transitive via `bcrypt > @mapbox/node-pre-gyp > tar@6`. Options:
+   replace `bcrypt` with `bcryptjs` (pure JS, no native build, no tar
+   dep, slightly slower hashing), or wait for `@mapbox/node-pre-gyp` to
+   bump tar. Decision deferred to Week 2 alongside Fastify migration.
+3. **uuid** false-positive in audit transitive chain via `@types/uuid`.
+   No runtime impact. May clear after next `@types/uuid` release.
+
+**Decision**
+
+- Week 1 CI audit gate: `--audit-level=critical` (currently 0, passes).
+- Week 2 CI audit gate: promote to `--audit-level=high` after items 1 and 2
+  above are resolved.
+- Document remaining highs in this ADR; do not use `--ignore-vuln` or any
+  suppression mechanism (we fix, not mask).
+
+**Consequences**
+
+- CI will start failing as soon as a new **critical** appears anywhere in
+  the dep tree — the real gate. Highs / moderates require manual review.
+- Week 2 plan must include 1–2 day buffer for Next 15 migration.
+
+---
+
 ## ADR-0007 · `ignoreBuildErrors` flags removed — root cause was pnpm hoisting · `accepted` · 2026-04-23
 
 **Context**

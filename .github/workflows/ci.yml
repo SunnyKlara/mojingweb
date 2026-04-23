@@ -97,6 +97,73 @@ jobs:
           path: frontend/playwright-report
           retention-days: 7
 
+  audit:
+    name: Security audit (pnpm audit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ADR-0008: Week 1 ships at --audit-level=critical (zero criticals after
+      # bumping next, nodemailer, bcrypt, uuid). Remaining 3 high vulns require
+      # architecture-level upgrades (Next 15, bcrypt native deps) scheduled for
+      # Week 2. Gate raises to --audit-level=high once those land.
+      - name: Run pnpm audit (fail on critical vulnerabilities)
+        run: pnpm audit --audit-level=critical
+
+  lighthouse:
+    name: Lighthouse (baseline, non-blocking — ADR-0005)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Week 1: baseline-only. Hard gate with numeric budgets starts Week 6.
+    # Do NOT set this to required on branch protection until then.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        run: pnpm --filter=frontend build
+        env:
+          NEXT_PUBLIC_BACKEND_URL: http://localhost:4000
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+
+      - name: Run Lighthouse CI (collect baseline)
+        run: pnpm dlx @lhci/cli@0.14.x autorun --config=frontend/lighthouserc.json
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Upload Lighthouse results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci
+          retention-days: 30
+
   build:
     name: Build (${{ matrix.package }})
     runs-on: ubuntu-latest
