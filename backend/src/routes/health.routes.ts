@@ -14,7 +14,7 @@ healthRouter.get('/health', (_req, res) => {
 })
 
 /**
- * Readiness — used by Railway / K8s to decide whether to send traffic.
+ * Readiness — used by Fly.io / K8s to decide whether to send traffic.
  * Verifies mongo connectivity with an actual ping.
  */
 healthRouter.get('/ready', async (_req, res) => {

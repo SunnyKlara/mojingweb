@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "0.1.0",
   "private": true,
-  "description": "GlobalBridge API server (Express + Socket.io + MongoDB)",
+  "description": "ModelZone API server (Express + Socket.io + MongoDB + Sentry)",
   "main": "dist/index.js",
   "type": "commonjs",
   "scripts": {

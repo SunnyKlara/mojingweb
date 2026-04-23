@@ -28,7 +28,7 @@ export function createServer(): { app: express.Express; server: http.Server; io:
   })
 
   app.disable('x-powered-by')
-  // Express 4: needed so req.ip honors X-Forwarded-For behind Railway / Cloudflare.
+  // Express 4: needed so req.ip honors X-Forwarded-For behind Fly.io / Cloudflare.
   app.set('trust proxy', 1)
 
   // Sentry request handler must come BEFORE any other middleware.

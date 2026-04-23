@@ -8,7 +8,7 @@ function localized(base: string, locale: string, path: string): string {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://globalbridge.example.com'
+  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://modelzone-tawny.vercel.app'
   const now = new Date()
   const entries: MetadataRoute.Sitemap = []
 

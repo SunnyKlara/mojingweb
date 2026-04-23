@@ -1,8 +1,8 @@
 {
-  "name": "mojing",
+  "name": "modelzone",
   "version": "0.1.0",
   "private": true,
-  "description": "GlobalBridge corporate website with real-time customer support",
+  "description": "ModelZone — brand platform for Wind Chaser 64 (Shenzhen Mirror Studio)",
   "packageManager": "pnpm@9.12.0",
   "engines": {
     "node": ">=20.0.0",

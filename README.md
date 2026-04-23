@@ -1,39 +1,51 @@
-# GlobalBridge — Corporate Website & Live Chat
+# ModelZone — Brand Platform for Wind Chaser 64
 
-> Enterprise-grade B2B corporate website with real-time customer support.
-> Next.js 14 on the edge · Node.js + Socket.io behind it · MongoDB + Redis data layer.
+> Enterprise-grade marketing + commerce platform for **Wind Chaser 64**, a
+> desktop wind tunnel for 1:64 scale model cars by Shenzhen Mirror Studio.
+>
+> Next.js 14 on Vercel · Express + Socket.io on Fly.io · MongoDB Atlas ·
+> Cloudflare edge · Sentry observability.
 
-[![CI](https://github.com/your-org/mojing/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/mojing/actions/workflows/ci.yml)
-![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)
-![pnpm](https://img.shields.io/badge/pnpm-%3E%3D9-orange)
+[![CI](https://github.com/SunnyKlara/mojingweb/actions/workflows/ci.yml/badge.svg)](https://github.com/SunnyKlara/mojingweb/actions/workflows/ci.yml)
+![Node](https://img.shields.io/badge/node-20-brightgreen)
+![pnpm](https://img.shields.io/badge/pnpm-9.12-orange)
 ![License](https://img.shields.io/badge/license-MIT-blue)
+
+Live: <https://modelzone-tawny.vercel.app> ·
+ADR log: [`docs/DECISIONS.md`](./docs/DECISIONS.md) ·
+Enterprise rebuild charter: [`docs/PROMPT-ENTERPRISE-REBUILD.md`](./docs/PROMPT-ENTERPRISE-REBUILD.md)
 
 ---
 
-## Architecture
+## Architecture (V1 target)
 
 ```
-                       ┌───────────────────┐
-   Visitors  ─────────▶│   Cloudflare      │  DNS + CDN + WAF
-                       └─────────┬─────────┘
-                                 │
+                         ┌───────────────────┐
+   Visitors  ───────────▶ │    Cloudflare    │  DNS + CDN + WAF
+                         └────────┬─────────┘
                  ┌───────────────┼───────────────┐
                  ▼                               ▼
-          ┌──────────────┐            ┌──────────────────┐
-          │   Vercel     │            │    Railway       │
-          │  frontend/   │◀──API/WS──▶│    backend/      │
-          │  Next.js 14  │            │  Express+Socket  │
-          └──────────────┘            └────┬─────┬───────┘
-                                           │     │
-                             ┌─────────────▼┐   ┌▼──────────┐
-                             │  MongoDB     │   │  Upstash  │
-                             │   Atlas      │   │   Redis   │
-                             └──────────────┘   └───────────┘
+      ┌────────────────┐            ┌─────────────────┐
+      │  Vercel Hobby    │  API + WS   │  Fly.io  (hkg)    │
+      │  frontend/       │◀──────────▶│  backend/         │
+      │  Next.js 14 App  │             │  Express+Socket.io│
+      └────────────────┘             └──────┬───────────┘
+                                              ▼
+                                     ┌────────────────┐
+                                     │  MongoDB Atlas   │  M0 free
+                                     └────────────────┘
+                                              │
+                                              ▼
+                                     ┌────────────────┐
+                                     │  Sentry          │  errors + releases
+                                     └────────────────┘
 ```
 
-- **frontend/** — Next.js 14 App Router, Tailwind, Socket.io client, deployed to Vercel
-- **backend/** — Express + Socket.io + Mongoose + Pino, deployed to Railway
-- **shared/** — Zod schemas + TS types + Socket event constants shared by both
+- **`frontend/`** — Next.js 14 App Router, Tailwind, shadcn/ui, next-intl (en/zh),
+  Socket.io client, `@sentry/nextjs`. Deployed to Vercel.
+- **`backend/`** — Express + Socket.io + Mongoose + pino + `@sentry/node`.
+  Deployed to Fly.io (scheduled Week 2; see `docs/DECISIONS.md` ADR-0002).
+- **`shared/`** — Zod schemas + TS types + Socket event constants shared by both.
 
 ---
 
@@ -43,24 +55,25 @@
 
 - Node.js `>=20` ([`.nvmrc`](./.nvmrc))
 - pnpm `>=9` — install via `npm i -g pnpm@9`
-- Docker Desktop (for MongoDB + Redis)
+- Docker Desktop (for local MongoDB — skip if using Atlas directly)
 
 **Steps**
 
 ```powershell
-# 1. Install deps (creates pnpm-lock.yaml, links shared/)
-pnpm install
+# 1. Install deps (pnpm 9 pinned via packageManager + corepack)
+pnpm install --frozen-lockfile
 
-# 2. Start MongoDB + Redis + mongo-express (http://localhost:8081)
+# 2. Start MongoDB locally (mongo-express UI on http://localhost:8081)
 pnpm docker:up
 
 # 3. Bootstrap env files
-cp backend/.env.example backend/.env
-cp frontend/.env.local.example frontend/.env.local
+copy backend\.env.example backend\.env
+copy frontend\.env.local.example frontend\.env.local
 # Edit backend/.env — at minimum set:
 #   JWT_ACCESS_SECRET  (openssl rand -hex 32)
 #   JWT_REFRESH_SECRET (openssl rand -hex 32)
-#   ADMIN_PASSWORD
+#   ADMIN_PASSWORD     (≥10 chars)
+# Optional: NEXT_PUBLIC_SENTRY_DSN / SENTRY_DSN to turn on telemetry.
 
 # 4. Run dev servers in parallel (web + api)
 pnpm dev
@@ -114,31 +127,38 @@ See [`.env.example`](./.env.example) for the full list. Key ones:
 
 **Backend (`backend/.env`)**
 
-- `MONGODB_URI`, `REDIS_URL`
+- `MONGODB_URI` (Atlas `mongodb+srv://...` in prod, local Mongo in dev)
 - `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` (≥32 chars, use `openssl rand -hex 32`)
 - `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_EMAIL`
-- `SMTP_*` / `NOTIFY_EMAIL` (optional)
-- `SENTRY_DSN` (optional)
+- `SMTP_*` / `NOTIFY_EMAIL` (optional — disables email notifications if blank)
+- `SENTRY_DSN` (optional locally, required in prod)
 
 **Frontend (`frontend/.env.local`)**
 
-- `NEXT_PUBLIC_BACKEND_URL`
-- `NEXT_PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_WEB3FORMS_KEY` (contact-form fallback — see ADR-0009)
+- `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_DSN` (production)
+- `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` (CI only, for source maps)
 
 ---
 
 ## Roadmap
 
-See [`CHANGELOG.md`](./CHANGELOG.md) for shipped work. Upcoming phases:
+See [`docs/PROMPT-ENTERPRISE-REBUILD.md`](./docs/PROMPT-ENTERPRISE-REBUILD.md) for the
+full charter and [`docs/DECISIONS.md`](./docs/DECISIONS.md) for shipped ADRs.
 
-- **Phase 1 — Security hardening** (bcrypt, refresh tokens, Socket auth, rate limiting)
-- **Phase 2 — UI system** (shadcn/ui, dark mode, design tokens, Storybook)
-- **Phase 3 — SEO / i18n / performance** (Lighthouse ≥95, zh/en)
-- **Phase 4 — Content** (MDX blog + cases + resource center)
-- **Phase 5 — Chat upgrade** (file uploads, typing indicators, read receipts, CSAT)
-- **Phase 6 — Forms & CRM** (demo requests, HubSpot/飞书 integration, email automation)
-- **Phase 7 — Observability & deploy** (Sentry, structured logs, CI/CD, preview envs)
-- **Phase 8 — Tests** (Vitest + Playwright, ≥70% coverage)
+**V1 · Brand Platform (6 weeks)**
+
+1. Week 1 · Tech-debt paydown, CI gates, Sentry, deps triage. _(in progress)_
+2. Week 2 · Fastify migration, Fly.io deploy, admin console, lead pipeline.
+3. Week 3 · Mid-demo: brand site + leads at staging URL.
+4. Week 4 · Real-time chat (typing / read / offline queue) + E2E.
+5. Week 5 · AI customer assistant (SSE streaming + KB RAG + guardrails).
+6. Week 6 · Perf hardening, Lighthouse budget, SEO/a11y audit, custom domain.
+
+**V2 · Pre-order (+2–3 weeks after V1 ships)** — Stripe, Resend, shipping hooks.
+
+**V3 · Community (backlog)** — user accounts, photo submissions, dealer portal.
 
 ---
 
@@ -157,5 +177,4 @@ docs: update deployment guide
 
 ## License
 
-MIT © 2024 GlobalBridge
-# mojingweb
+MIT © 2026 Shenzhen Mirror Studio / ModelZone.
