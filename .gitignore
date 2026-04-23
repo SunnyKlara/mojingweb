@@ -17,6 +17,10 @@ out/
 !.env.example
 !.env.*.example
 
+# ---------- Scratch / local tooling ----------
+_commitmsg.txt
+_audit.json
+
 # ---------- Logs ----------
 logs/
 *.log
