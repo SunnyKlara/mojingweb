@@ -3,10 +3,13 @@ import { useState, type FormEvent } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { Loader2, Send } from 'lucide-react'
 import { toast } from 'sonner'
-import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+
+const WEB3FORMS_ACCESS_KEY =
+  process.env.NEXT_PUBLIC_WEB3FORMS_KEY || '8c39082d-f552-47ad-a587-8473346f770d'
+const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit'
 
 interface FormState {
   name: string
@@ -41,16 +44,32 @@ export function ContactForm() {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (loading) return
+    // Honeypot: if bots fill the hidden `website` field, silently drop.
+    if (state.website) return
     setLoading(true)
     try {
-      await api('/api/leads', {
+      const payload = {
+        access_key: WEB3FORMS_ACCESS_KEY,
+        subject: `ModelZone · New inquiry from ${state.name || 'anonymous'}`,
+        from_name: state.name,
+        name: state.name,
+        email: state.email,
+        company: state.company,
+        phone: state.phone,
+        message: state.message,
+        source: typeof window !== 'undefined' ? window.location.pathname : 'home',
+        locale,
+        botcheck: '',
+      }
+      const res = await fetch(WEB3FORMS_ENDPOINT, {
         method: 'POST',
-        body: JSON.stringify({
-          ...state,
-          source: typeof window !== 'undefined' ? window.location.pathname : 'home',
-          locale,
-        }),
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload),
       })
+      const data = (await res.json().catch(() => ({}))) as { success?: boolean; message?: string }
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Submission failed')
+      }
       toast.success(t('success'))
       setState(initial)
     } catch (err) {

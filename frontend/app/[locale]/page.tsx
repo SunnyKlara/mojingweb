@@ -1,4 +1,3 @@
-import dynamic from 'next/dynamic'
 import { setRequestLocale } from 'next-intl/server'
 import { AnnouncementBar } from '@/components/site/announcement-bar'
 import { NavBar } from '@/components/site/navbar'
@@ -17,7 +16,9 @@ import { CTA } from '@/components/site/cta'
 import { BuySticky } from '@/components/site/buy-sticky'
 import { JsonLd } from '@/components/seo/json-ld'
 
-const ChatWidget = dynamic(() => import('@/components/ChatWidget'), { ssr: false })
+// ChatWidget is temporarily disabled — it requires the Socket.io backend which
+// is not deployed yet. Re-enable by restoring the dynamic import + <ChatWidget /> below.
+// const ChatWidget = dynamic(() => import('@/components/ChatWidget'), { ssr: false })
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
@@ -84,7 +85,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       </main>
       <BuySticky />
       <Footer />
-      <ChatWidget />
+      {/* <ChatWidget /> — disabled; see import comment above */}
     </>
   )
 }
