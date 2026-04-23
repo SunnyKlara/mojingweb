@@ -130,6 +130,38 @@ Format: `ADR-NNNN · [short title]` · status (`accepted` / `superseded by ADR-X
 
 ---
 
+## ADR-0010 · i18n hardcoding accepted as debt through Week 5 · `accepted` · 2026-04-23
+
+**Context**
+
+- §2 mandates every user-visible string come from `messages/*.json`.
+- `docs/week1/i18n-audit.md` inventories ~69 hardcoded strings across 10
+  files, including in-file `{en, zh}` dictionaries (`cta.tsx` et al.).
+
+**Decision**
+
+- Do **not** migrate in Week 1. The audit report is the backlog.
+- Week 4 chat PR: migrate `ChatWidget.tsx` strings (already touching that
+  surface).
+- Week 6 SEO+a11y audit: single sweep for the remaining ~50 strings, plus
+  an ESLint rule (`i18next/no-literal-string` scoped to `components/site/**`)
+  and a `scripts/i18n-check.mjs` CI check to prevent regression.
+
+**Alternatives considered**
+
+- Migrate all 69 in Week 1: rejected — requires product decisions on en
+  translations for zh-marketing strings; Owner input per string not
+  available today.
+- Skip entirely: rejected — report creates the paper trail so the debt
+  doesn't go silent again.
+
+**Consequences**
+
+- New components added before Week 6 must use `t()` from day 1; reviewers
+  enforce manually.
+
+---
+
 ## ADR-0009 · Contact form stays on Web3Forms through Week 1; tests assert that · `accepted` · 2026-04-23
 
 **Context**
