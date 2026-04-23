@@ -1,4 +1,5 @@
 import createNextIntlPlugin from 'next-intl/plugin'
+import { withSentryConfig } from '@sentry/nextjs'
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
 
@@ -36,4 +37,16 @@ const nextConfig = {
   },
 }
 
-export default withNextIntl(nextConfig)
+const sentryBuildOptions = {
+  // Only upload source maps when an auth token is present (CI / production).
+  silent: !process.env.SENTRY_AUTH_TOKEN,
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT ?? 'modelzone-frontend',
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  widenClientFileUpload: true,
+  hideSourceMaps: true,
+  disableLogger: true,
+  telemetry: false,
+}
+
+export default withSentryConfig(withNextIntl(nextConfig), sentryBuildOptions)

@@ -14,9 +14,12 @@ import { leadRouter } from './routes/lead.routes'
 import { healthRouter } from './routes/health.routes'
 import { errorHandler, notFoundHandler } from './middleware/error.middleware'
 import { registerSocketHandlers } from './socket'
-import { initSentry, sentryRequestHandler, sentryErrorHandler } from './lib/sentry'
+import { initSentry, sentryRequestHandler, installSentryExpressErrorHandler } from './lib/sentry'
 
 export function createServer(): { app: express.Express; server: http.Server; io: IOServer } {
+  // Idempotent — index.ts already calls initSentry() earlier, but call again
+  // to guarantee initialization if createServer() is invoked in isolation
+  // (e.g. supertest integration tests).
   initSentry()
   const app = express()
   const server = http.createServer(app)
@@ -57,8 +60,8 @@ export function createServer(): { app: express.Express; server: http.Server; io:
   app.use('/api/leads', leadRouter)
 
   app.use(notFoundHandler)
-  // Sentry error handler must come BEFORE the project-level error handler.
-  app.use(sentryErrorHandler)
+  // Sentry v8 error handler — must come BEFORE the project-level error handler.
+  installSentryExpressErrorHandler(app)
   app.use(errorHandler)
 
   registerSocketHandlers(io)

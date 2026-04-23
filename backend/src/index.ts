@@ -1,3 +1,8 @@
+// Sentry must be initialized BEFORE any other imports so its automatic
+// instrumentation can patch http / express / mongoose on load. See ADR-0003.
+import { initSentry, Sentry } from './lib/sentry'
+initSentry()
+
 import { env } from './config/env'
 import { logger } from './config/logger'
 import { connectMongo } from './db/mongoose'
@@ -23,5 +28,6 @@ async function main(): Promise<void> {
 
 main().catch((err) => {
   logger.fatal({ err }, 'Fatal startup error')
-  process.exit(1)
+  Sentry.captureException(err)
+  void Sentry.flush(2000).finally(() => process.exit(1))
 })

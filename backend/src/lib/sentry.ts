@@ -1,61 +1,68 @@
 /**
- * Opt-in Sentry integration.
+ * Sentry integration for the backend (Sentry SDK v8).
  *
- * Kept as a pluggable shim: if `SENTRY_DSN` is set AND `@sentry/node` is
- * installed, we initialize it. Otherwise every call is a no-op. This keeps
- * the dependency cost at zero for teams that don't want it.
+ * ADR-0003: installed as a hard dep in Week 1 (@sentry/node@^8). The old
+ * pluggable shim using `createRequire` was retired because the dep now ships
+ * with the backend.
  *
- * To enable:
- *   pnpm add -F backend @sentry/node
- *   echo "SENTRY_DSN=https://..." >> backend/.env
+ * IMPORTANT: `initSentry()` MUST be invoked before any other business import
+ * in `index.ts` so that Sentry's automatic instrumentation (http, express,
+ * mongodb, etc.) can patch the modules on load.
  */
-import { createRequire } from 'node:module'
-import type { RequestHandler, ErrorRequestHandler } from 'express'
+import * as Sentry from '@sentry/node'
+import type { Express, RequestHandler } from 'express'
 import { env, isProd } from '../config/env'
 import { logger } from '../config/logger'
 
-// CommonJS output, so __filename is available.
-const nodeRequire = createRequire(__filename)
-
-interface SentryLike {
-  init(opts: Record<string, unknown>): void
-  captureException(err: unknown): void
-  Handlers: {
-    requestHandler(): RequestHandler
-    errorHandler(): ErrorRequestHandler
-  }
-}
-
-let sentry: SentryLike | null = null
+let initialized = false
 
 export function initSentry(): void {
+  if (initialized) return
   if (!env.SENTRY_DSN) return
-  try {
-    const mod = nodeRequire('@sentry/node') as SentryLike
-    mod.init({
-      dsn: env.SENTRY_DSN,
-      environment: env.NODE_ENV,
-      tracesSampleRate: isProd ? 0.1 : 1.0,
-    })
-    sentry = mod
-    logger.info('Sentry initialized')
-  } catch {
-    logger.warn(
-      'SENTRY_DSN set but @sentry/node not installed. Run `pnpm add -F backend @sentry/node` to enable.',
-    )
-  }
+
+  Sentry.init({
+    dsn: env.SENTRY_DSN,
+    environment: process.env.SENTRY_ENVIRONMENT ?? env.NODE_ENV,
+    release: process.env.SENTRY_RELEASE,
+    tracesSampleRate: isProd ? 0.1 : 1.0,
+    includeLocalVariables: !isProd,
+  })
+
+  initialized = true
+  logger.info('Sentry initialized')
 }
 
 export function captureException(err: unknown): void {
-  sentry?.captureException(err)
+  if (initialized) Sentry.captureException(err)
 }
 
-export const sentryRequestHandler: RequestHandler = (req, res, next) => {
-  if (sentry) return sentry.Handlers.requestHandler()(req, res, next)
+/**
+ * Install Sentry's Express error handler. In v8 the request handler is
+ * provided automatically by the http integration when `init()` runs early,
+ * so we only need to wire the error handler at the tail of the middleware
+ * chain (before your own `errorHandler`).
+ */
+export function installSentryExpressErrorHandler(app: Express): void {
+  if (!initialized) return
+  Sentry.setupExpressErrorHandler(app)
+}
+
+/**
+ * Backwards-compat no-op kept so existing `server.ts` wiring keeps compiling
+ * during the incremental migration. v8 does the request-level work via
+ * automatic http-integration; this middleware is intentionally a pass-through.
+ */
+export const sentryRequestHandler: RequestHandler = (_req, _res, next) => {
   next()
 }
 
-export const sentryErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  if (sentry) return sentry.Handlers.errorHandler()(err, req, res, next)
-  next(err)
+/**
+ * @deprecated v7 shape. Use `installSentryExpressErrorHandler(app)` instead.
+ * Kept as a no-op forwarder so callers that still `app.use(sentryErrorHandler)`
+ * do not break during the transition.
+ */
+export const sentryErrorHandler: RequestHandler = (_req, _res, next) => {
+  next()
 }
+
+export { Sentry }

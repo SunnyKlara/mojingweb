@@ -130,6 +130,45 @@ Format: `ADR-NNNN · [short title]` · status (`accepted` / `superseded by ADR-X
 
 ---
 
+## ADR-0009 · Contact form stays on Web3Forms through Week 1; tests assert that · `accepted` · 2026-04-23
+
+**Context**
+
+- §6 bullet 6 of the prompt schedules migration from Web3Forms to own
+  `/api/leads`. However `/api/leads` requires the backend deployed to
+  Fly.io (Week 2 T1), which has not happened yet.
+- Pre-existing `frontend/__tests__/contact-form.test.tsx` was mocking
+  `@/lib/api` and asserting a `/api/leads` POST — matching the aspirational
+  state, not the shipped code. As a result the test has been silently red
+  since the prototype launch.
+
+**Decision**
+
+- Rewrite the test to assert the **current** Web3Forms behavior: mocks
+  `global.fetch` and expects a POST to `https://api.web3forms.com/submit`
+  with `access_key` + `name/email/message` fields.
+- Keep a single `it.todo(...)` placeholder pointing at the Week 2 migration
+  so the debt is visible in every test run.
+- On Week 2 T1 (backend deploy + `/api/leads`), the migration PR must:
+  1. Update `contact-form.tsx` to POST to `/api/leads` via `@/lib/api`.
+  2. Replace the `.todo` with a real test for the `/api/leads` path.
+  3. Keep Web3Forms as a documented graceful-degradation fallback.
+
+**Alternatives considered**
+
+- Skip the two failing tests with `.skip` and a TODO: rejected — violates
+  "never weaken tests" policy and lets regressions hide.
+- Migrate the form to `/api/leads` now (pre-deploy): rejected — would break
+  the live lead capture on production (prod calls `/api/leads` → 404).
+
+**Consequences**
+
+- Tests now faithfully describe shipped behavior.
+- Week 2 Fly.io deploy PR is blocked from merging until it flips **both**
+  the form and the test — preventing silent prod breakage.
+
+---
+
 ## ADR-0008 · Dependency security triage; Week 1 ships at `--audit-level=critical` · `accepted` · 2026-04-23
 
 **Context**
