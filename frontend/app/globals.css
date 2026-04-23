@@ -86,6 +86,19 @@
   ::selection {
     @apply bg-foreground text-background;
   }
+
+  /* Global safeguard: no image may overflow its container or the viewport height. */
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+  article img,
+  .prose img {
+    max-height: 80vh;
+    object-fit: contain;
+    margin-inline: auto;
+  }
 }
 
 @layer utilities {

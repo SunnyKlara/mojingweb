@@ -40,8 +40,8 @@ export function ListingScroll() {
             width={2048}
             height={1536}
             priority={i < 2}
-            sizes="(max-width: 900px) 100vw, 900px"
-            className="mx-auto block h-auto w-full max-w-[900px]"
+            sizes="(max-width: 860px) 100vw, 860px"
+            className="mx-auto block h-auto max-h-[85vh] w-full max-w-[860px] object-contain"
           />
         </motion.div>
       ))}

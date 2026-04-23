@@ -59,13 +59,13 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <PosterSlide src="/brand/3.png" alt="全透明烟雾仓 · 30ml 长续航" />
 
         {/* 8. Cinematic: 您的下一件精品桌搭 (full-bleed, text baked) */}
-        <CinematicScene src="/brand/6.png" alt="您的下一件精品桌搭" height="h-[80vh] md:h-screen" />
+        <CinematicScene src="/brand/6.png" alt="您的下一件精品桌搭" height="h-[60vh] md:h-[75vh]" />
 
         {/* 9. Poster: 外部尺寸 220×99×59mm */}
         <PosterSlide src="/brand/7.png" alt="Wind Chaser 64 经过精心设计 · 220×99×59mm" />
 
         {/* 10. Cinematic desk scene */}
-        <CinematicScene src="/brand/8.png" alt="车模爱好者的工作台" height="h-[80vh] md:h-screen" />
+        <CinematicScene src="/brand/8.png" alt="车模爱好者的工作台" height="h-[60vh] md:h-[75vh]" />
 
         {/* 11. Structured data sections */}
         <SpecsTable />

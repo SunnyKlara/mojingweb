@@ -10,21 +10,21 @@ import { motion } from 'framer-motion'
 export function PosterSlide({
   src,
   alt,
-  maxWidth = 1200,
+  maxWidth = 960,
 }: {
   src: string
   alt: string
-  /** Max width in px (default 1200). */
+  /** Max width in px (default 960). */
   maxWidth?: number
 }) {
   return (
-    <section className="bg-black py-10 md:py-20">
+    <section className="bg-black py-8 md:py-16">
       <motion.div
         initial={{ opacity: 0, y: 36 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-120px' }}
         transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-        className="mx-auto"
+        className="mx-auto px-4"
         style={{ maxWidth }}
       >
         <Image
@@ -32,8 +32,8 @@ export function PosterSlide({
           alt={alt}
           width={2048}
           height={1536}
-          sizes="(max-width: 1200px) 100vw, 1200px"
-          className="block h-auto w-full"
+          sizes="(max-width: 960px) 100vw, 960px"
+          className="mx-auto block h-auto max-h-[80vh] w-full object-contain"
         />
       </motion.div>
     </section>

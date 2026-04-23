@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 export function CinematicScene({
   src,
   alt,
-  height = 'h-screen',
+  height = 'h-[70vh] md:h-[80vh]',
   position = 'center',
   children,
   priority,
