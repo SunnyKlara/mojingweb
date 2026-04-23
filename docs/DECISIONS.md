@@ -224,7 +224,56 @@ Format: `ADR-NNNN · [short title]` · status (`accepted` / `superseded by ADR-X
 
 ---
 
-## ADR-0009 · Contact form stays on Web3Forms through Week 1; tests assert that · `accepted` · 2026-04-23
+## ADR-0013 · Contact form uses own `/api/leads` primary + Web3Forms fallback · `accepted` · 2026-04-23
+
+**Context**
+
+- ADR-0009 deferred the Web3Forms → `/api/leads` migration to Week 2 because
+  `/api/leads` needed a deployed backend.
+- Backend is **not yet deployed** (waiting on Render per ADR-0011), but the
+  prototype already has a complete `POST /api/leads` route (validation +
+  honeypot + rate-limit + audit + mailer) in `backend/src/routes/lead.routes.ts`.
+- Shipping the frontend swap **before** the backend deploy is safe if we
+  design for graceful degradation — an unreachable backend should not kill
+  lead capture.
+
+**Decision**
+
+- Contact form submits to `${NEXT_PUBLIC_BACKEND_URL}/api/leads` **first**,
+  with a **5-second timeout**.
+- Response handling:
+  - **2xx** — done, toast success.
+  - **4xx** — show error to user, **do NOT fall back**. Falling back to
+    Web3Forms with the same (invalid) data would mask the real problem
+    (e.g. rate-limit, validation).
+  - **5xx / network error / timeout** — fall back to Web3Forms. The lead
+    is still captured. A Sentry `captureMessage` is fired at `warning`
+    level so the fallback rate is observable.
+- Fallback Web3Forms is the V1 graceful-degradation safety net. It will
+  be retired at Week 6 SEO+a11y sweep once the backend has a month of
+  stable uptime data.
+
+**Alternatives considered**
+
+- **All-or-nothing migration** (delete Web3Forms now): rejected. Until
+  Week 2 backend deploy succeeds and a week of prod observation passes,
+  removing the fallback risks dropping real leads during cut-over.
+- **Feature flag** (`NEXT_PUBLIC_CONTACT_BACKEND_PRIMARY=false` to force
+  Web3Forms): deferred. If we discover cut-over pain we will add the flag
+  then — keeping the code simpler right now.
+
+**Consequences**
+
+- `docs/week1/i18n-audit.md` and the old `it.todo` placeholder in the
+  contact-form test are retired.
+- Anyone reading Sentry will see a `contact-form: primary backend failed,
+using Web3Forms` message whenever Render has a cold-start > 5 s or a
+  50x blip. That's noise we accept in exchange for honest visibility.
+- ADR-0009 is now `superseded by ADR-0013`.
+
+---
+
+## ADR-0009 · Contact form stays on Web3Forms through Week 1; tests assert that · `superseded by ADR-0013` · 2026-04-23
 
 **Context**
 
@@ -289,18 +338,22 @@ Format: `ADR-NNNN · [short title]` · status (`accepted` / `superseded by ADR-X
 - **30 → 12** vulnerabilities (1 low, 8 moderate, **3 high, 0 critical**).
 - All three packages (`shared`, `backend`, `frontend`) typecheck + build clean.
 
-**Remaining 3 high (tracked for Week 2)**
+**Remaining 3 high after Week 1 (status tracked below)**
 
-1. **Next.js DoS with Server Components** (GHSA-q4gf-8mx6-v5v3) — requires
-   upgrade to `next ≥ 15.5.15`, i.e. Next 15 major. Breaking: App Router
-   API changes, async request APIs. Scope: 1–2 days Week 2 spike.
-2. **node-tar Symlink Path Traversal** (GHSA-9ppj-qmqm-q256 & siblings) —
-   transitive via `bcrypt > @mapbox/node-pre-gyp > tar@6`. Options:
-   replace `bcrypt` with `bcryptjs` (pure JS, no native build, no tar
-   dep, slightly slower hashing), or wait for `@mapbox/node-pre-gyp` to
-   bump tar. Decision deferred to Week 2 alongside Fastify migration.
-3. **uuid** false-positive in audit transitive chain via `@types/uuid`.
-   No runtime impact. May clear after next `@types/uuid` release.
+1. **Rollup Arbitrary File Write** (GHSA-mw96-cpmx-2vgc) — transitive via
+   `@sentry/nextjs > @rollup/plugin-commonjs`. Build-time only (runs only
+   during `next build`, never at runtime in browser or server). **Fixed
+   Week 2 T6** via `pnpm.overrides.rollup: ^4.30.0` in root
+   `package.json`. Audit: 3 high → 2 high.
+2. **Next.js HTTP Request Deserialization DoS** (GHSA-h25m-26qc-wcjf) —
+   runtime, app-router + RSC. Requires `next ≥ 15.0.8`.
+3. **Next.js DoS with Server Components** (GHSA-q4gf-8mx6-v5v3) — runtime.
+   Requires `next ≥ 15.5.15`.
+
+Items 2 and 3 both resolve in a single **Next 14 → 15 major upgrade**,
+tracked as Week 2 follow-up (4 h spike; breaking changes include async
+`cookies()` / `headers()` / `params` / `searchParams`, default-uncached
+`fetch`, and a next-intl compat check).
 
 **Decision**
 

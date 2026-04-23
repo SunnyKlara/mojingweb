@@ -228,6 +228,7 @@
     "inputPlaceholder": "Ask anything…",
     "send": "Send",
     "readBadge": "Read",
-    "typingIndicator": "Typing…"
+    "typingIndicator": "Typing…",
+    "ariaLabel": "Live support chat"
   }
 }

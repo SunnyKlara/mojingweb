@@ -130,7 +130,7 @@ export default function ChatWidget() {
             transition={{ duration: 0.18, ease: 'easeOut' }}
             className="bg-card text-card-foreground flex h-[520px] w-[360px] flex-col overflow-hidden rounded-2xl border shadow-2xl"
             role="dialog"
-            aria-label="在线客服"
+            aria-label={t('ariaLabel')}
           >
             {/* Header */}
             <div className="from-primary text-primary-foreground flex items-center justify-between border-b bg-gradient-to-br to-blue-700 px-4 py-3">

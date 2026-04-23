@@ -3,13 +3,16 @@ import { useState, type FormEvent } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { Loader2, Send } from 'lucide-react'
 import { toast } from 'sonner'
+import * as Sentry from '@sentry/nextjs'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { BACKEND_URL } from '@/lib/api'
 
 const WEB3FORMS_ACCESS_KEY =
   process.env.NEXT_PUBLIC_WEB3FORMS_KEY || '8c39082d-f552-47ad-a587-8473346f770d'
 const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit'
+const PRIMARY_TIMEOUT_MS = 5000
 
 interface FormState {
   name: string
@@ -28,6 +31,66 @@ const initial: FormState = {
   phone: '',
   message: '',
   website: '',
+}
+
+/**
+ * 4xx from our backend = user input problem (validation, rate-limit).
+ * Surface it to the user, do NOT fall back to Web3Forms with the same
+ * (invalid) data — the fallback would mask the real error.
+ */
+class LeadClientError extends Error {}
+
+/**
+ * 5xx / network / timeout from our backend = infrastructure problem.
+ * Acceptable to fall back to Web3Forms so the lead is still captured.
+ */
+class LeadServerError extends Error {}
+
+async function submitToOwnBackend(payload: Record<string, unknown>): Promise<void> {
+  let res: Response
+  try {
+    res = await fetch(`${BACKEND_URL}/api/leads`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      // Public endpoint — no cookies needed; avoid CORS preflight cookie fuss.
+      credentials: 'omit',
+      signal: AbortSignal.timeout(PRIMARY_TIMEOUT_MS),
+    })
+  } catch (err) {
+    // Network error, DNS failure, or AbortSignal timeout.
+    throw new LeadServerError(err instanceof Error ? err.message : 'Network error')
+  }
+  if (res.ok) return
+  const body = (await res.json().catch(() => ({}))) as { error?: string }
+  if (res.status >= 400 && res.status < 500) {
+    throw new LeadClientError(body.error || `Request rejected (${res.status})`)
+  }
+  throw new LeadServerError(body.error || `Backend ${res.status}`)
+}
+
+async function submitToWeb3Forms(state: FormState, locale: string): Promise<void> {
+  const res = await fetch(WEB3FORMS_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      access_key: WEB3FORMS_ACCESS_KEY,
+      subject: `ModelZone · New inquiry from ${state.name || 'anonymous'}`,
+      from_name: state.name,
+      name: state.name,
+      email: state.email,
+      company: state.company,
+      phone: state.phone,
+      message: state.message,
+      source: typeof window !== 'undefined' ? window.location.pathname : 'home',
+      locale,
+      botcheck: '',
+    }),
+  })
+  const data = (await res.json().catch(() => ({}))) as { success?: boolean; message?: string }
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || 'Submission failed')
+  }
 }
 
 export function ContactForm() {
@@ -49,26 +112,28 @@ export function ContactForm() {
     setLoading(true)
     try {
       const payload = {
-        access_key: WEB3FORMS_ACCESS_KEY,
-        subject: `ModelZone · New inquiry from ${state.name || 'anonymous'}`,
-        from_name: state.name,
         name: state.name,
         email: state.email,
-        company: state.company,
-        phone: state.phone,
+        company: state.company || undefined,
+        phone: state.phone || undefined,
         message: state.message,
         source: typeof window !== 'undefined' ? window.location.pathname : 'home',
         locale,
-        botcheck: '',
+        website: state.website, // honeypot — server rejects if non-empty
       }
-      const res = await fetch(WEB3FORMS_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(payload),
-      })
-      const data = (await res.json().catch(() => ({}))) as { success?: boolean; message?: string }
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || 'Submission failed')
+      try {
+        await submitToOwnBackend(payload)
+      } catch (err) {
+        if (err instanceof LeadClientError) {
+          // User-facing problem. Surface it, do not fall back.
+          throw err
+        }
+        // Infra problem. Log + fall back to Web3Forms.
+        Sentry.captureMessage('contact-form: primary backend failed, using Web3Forms', {
+          level: 'warning',
+          extra: { reason: err instanceof Error ? err.message : String(err) },
+        })
+        await submitToWeb3Forms(state, locale)
       }
       toast.success(t('success'))
       setState(initial)

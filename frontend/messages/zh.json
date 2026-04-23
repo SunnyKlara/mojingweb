@@ -228,6 +228,7 @@
     "inputPlaceholder": "随便问……",
     "send": "发送",
     "readBadge": "已读",
-    "typingIndicator": "正在输入…"
+    "typingIndicator": "正在输入…",
+    "ariaLabel": "在线客服聊天窗口"
   }
 }
