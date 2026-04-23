@@ -130,6 +130,92 @@ Format: `ADR-NNNN · [short title]` · status (`accepted` / `superseded by ADR-X
 
 ---
 
+## ADR-0007 · `ignoreBuildErrors` flags removed — root cause was pnpm hoisting · `accepted` · 2026-04-23
+
+**Context**
+
+- `LAUNCH-SUMMARY.md:83-85` claimed real TS errors existed in
+  `frontend/app/(admin)/admin/**` with symptom _"declaration of `react` could
+  not be resolved in Vercel's sandbox"_, root cause marked as "unconfirmed".
+- Original Week 1 plan budgeted 8–10 h for T2 (fix admin types).
+
+**Investigation (T2 probe, ~15 min)**
+
+- After T1 landed (added `public-hoist-pattern[]=@types/*` to `.npmrc`),
+  we re-ran the following with the ignore flags flipped to `false`:
+  - `pnpm --filter=frontend typecheck` → exit 0, zero errors
+  - `pnpm --filter=frontend lint` → exit 0, zero warnings
+  - `pnpm --filter=frontend build` → exit 0, all 24 pages including
+    `/admin`, `/admin/leads`, `/admin/login` generated cleanly
+- Conclusion: the original Vercel-sandbox failure was caused by pnpm's
+  isolated `node_modules` layout hiding `@types/react` from TypeScript's
+  resolver. T1's hoist pattern change fixed the root cause.
+
+**Decision**
+
+- Delete `typescript.ignoreBuildErrors` and `eslint.ignoreDuringBuilds` from
+  `frontend/next.config.mjs` entirely (rely on Next defaults).
+- Reclaim ~8 h of Week 1 budget. Options for reallocation, in priority order:
+  1. T3 CI gates — larger buffer for Lighthouse baseline & axe wiring.
+  2. T4 Sentry — pull source-maps + release tracking forward from Week 2.
+  3. Week 2 Fastify migration — spike work during Week 1 if T3/T4 finish
+     early.
+
+**Alternatives considered**
+
+- Keep flags as `false` (not delete): rejected — matches defaults, dead
+  config just adds noise.
+- Don't trust the quick probe; still budget 8 h: rejected — evidence is
+  conclusive (three independent checks green).
+
+**Consequences**
+
+- Any future regression that silently depends on disabled checks will now
+  break CI immediately (as intended).
+- `LAUNCH-SUMMARY.md` is now historical; this ADR supersedes its §5 High
+  bullet #1.
+
+---
+
+## ADR-0006 · §4 PR-review workflow relaxed for Week 1 (solo Owner-dev) · `accepted` · 2026-04-23
+
+**Context**
+
+- §4 of the rebuild prompt mandates "short-lived feature branches; PR review
+  required".
+- Current team size is 1 (Owner = Klara = sole reviewer). GitHub PR ceremony
+  adds ~5 min / task of overhead without providing independent review.
+- Owner explicitly requested "直接合并，我需要效率" after the first PR.
+
+**Decision**
+
+- Week 1 only: trivial, config-only tasks (T1 foundation, T5 docs, T6 audit)
+  may be merged directly to `main` via fast-forward push. CI still runs
+  post-push and surfaces breakage.
+- Tasks that modify application code or CI configuration (T2 admin types,
+  T3 CI gates, T4 Sentry wiring) will still use a feature branch locally,
+  but Cascade self-reviews (typecheck + lint + tests green) and then
+  merges directly. No GitHub PR unless Owner requests one.
+- Starting Week 2 (when a second collaborator or more complex change sets
+  appear), revisit this ADR.
+
+**Alternatives considered**
+
+- Strict §4 compliance: rejected by Owner on efficiency grounds for solo
+  work. Trade-off accepted.
+- Squash-merge via GitHub UI: same overhead as PR, no extra value for a
+  solo dev.
+
+**Consequences**
+
+- Audit trail is the `git log` on `main`, not PR history.
+- If a commit lands broken, rollback is `git revert <sha>` + push, which
+  is well within Cascade's capability.
+- Feature-branch discipline (one branch per task) is retained locally to
+  enable trivial revert and parallel work.
+
+---
+
 ## ADR-0005 · Lighthouse CI = baseline-only in Week 1, hard gate in Week 6 · `accepted` · 2026-04-23
 
 **Context**

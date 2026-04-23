@@ -9,10 +9,6 @@ const nextConfig = {
   compress: true,
   output: 'standalone',
   transpilePackages: ['@mojing/shared'],
-  // TEMP: tolerate type/lint issues during CI builds so we can ship the
-  // marketing site. Revisit once admin pages are fully typed end-to-end.
-  typescript: { ignoreBuildErrors: true },
-  eslint: { ignoreDuringBuilds: true },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [{ protocol: 'https', hostname: '**' }],
