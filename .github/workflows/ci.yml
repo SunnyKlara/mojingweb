@@ -174,6 +174,11 @@ jobs:
         package: [frontend, backend]
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Sentry release requires commit history to associate commits to a
+          # release. `fetch-depth: 0` is cheap on small repos and keeps the
+          # Sentry "commits" tab populated.
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
         with:
@@ -190,6 +195,29 @@ jobs:
       - name: Build ${{ matrix.package }}
         run: pnpm --filter=${{ matrix.package }} build
         env:
-          # Minimal envs required for next build + backend tsc build
+          # --- Always-on build envs (same on PR + main) ---
           NEXT_PUBLIC_BACKEND_URL: http://localhost:4000
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
+
+          # --- Sentry release tagging (always set, safe) ---
+          # Every build tags emitted events with the commit SHA so we can
+          # pinpoint which deploy a Sentry issue belongs to. This is a pure
+          # env injection — no network call, no quota cost.
+          SENTRY_RELEASE: ${{ github.sha }}
+          NEXT_PUBLIC_SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}
+
+          # --- Sentry source-map upload (ONLY on push to main) ---
+          # On PR builds, SENTRY_AUTH_TOKEN is deliberately left empty which
+          # triggers `silent: true` in frontend/next.config.mjs and skips the
+          # upload. This (a) saves Sentry quota, (b) avoids leaking PR source
+          # maps to the project, (c) mirrors prod-only ADR-0005 practice.
+          SENTRY_AUTH_TOKEN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.SENTRY_AUTH_TOKEN || '' }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ matrix.package == 'frontend' && 'modelzone-frontend' || 'modelzone-backend' }}
+
+          # DSN is public for client, secret-shaped for server (but DSNs are
+          # not actually secrets per Sentry docs — they identify the project,
+          # not authorize writes). Both paths fall back to no-op if unset.
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}

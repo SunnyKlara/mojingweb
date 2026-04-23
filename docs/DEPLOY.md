@@ -185,10 +185,48 @@ Render free tier sleeps after **15 min** of no HTTP traffic. Cold start
 See `ADR-0003`. Two projects under one org:
 
 - `modelzone-frontend` → `@sentry/nextjs` (browser + SSR + edge)
-- `modelzone-backend` → `@sentry/node` (backend, Week 2 Fastify-ready)
+- `modelzone-backend` → `@sentry/node` (backend)
 
-CI should inject `SENTRY_RELEASE=$GIT_SHA` and `SENTRY_AUTH_TOKEN` on every
-production deploy so source maps & release markers upload automatically.
+### 5.1 Release tagging (automated in CI — Week 2 T5)
+
+`.github/workflows/ci.yml` injects the following **on every build**:
+
+- `SENTRY_RELEASE` = `${{ github.sha }}` — tags emitted events.
+- `NEXT_PUBLIC_SENTRY_RELEASE` = same (client SDK).
+- `SENTRY_ENVIRONMENT` = `production` on `main`, `preview` elsewhere.
+
+And **only on pushes to `main`** (PRs deliberately skip):
+
+- `SENTRY_AUTH_TOKEN` — uploads source maps through `withSentryConfig`
+  (`frontend/next.config.mjs`). Missing token = `silent: true` = no upload.
+- `SENTRY_ORG`, `SENTRY_PROJECT` — scope the upload.
+
+### 5.2 Required GitHub Secrets (Owner, one-time)
+
+Set these at <https://github.com/SunnyKlara/mojingweb/settings/secrets/actions>:
+
+| Secret                   | Source                                                                                       | Required for                                                |
+| ------------------------ | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `SENTRY_AUTH_TOKEN`      | Sentry → Settings → Auth Tokens → New, scopes `project:releases`, `project:read`, `org:read` | Source-map upload on `main` builds                          |
+| `SENTRY_ORG`             | Sentry org slug (e.g. `modelzone`)                                                           | Source-map upload                                           |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry → `modelzone-frontend` → Settings → Client Keys (DSN)                                 | Frontend runtime error reporting                            |
+| `SENTRY_DSN`             | Sentry → `modelzone-backend` → Client Keys (DSN)                                             | Backend runtime error reporting (Render reads this, not CI) |
+
+A DSN is _not_ a secret in the cryptographic sense (it identifies the
+project, does not authorize writes) but we store it as a GH secret anyway
+for consistency and because `NEXT_PUBLIC_*` values become part of the
+deployed JS bundle regardless.
+
+### 5.3 First deploy verification
+
+After T3 Render deploy lands:
+
+1. Trigger one client error on the frontend (DevTools → `throw new Error('sentry-smoke-test')`).
+2. Trigger one server error on the backend (gated admin route to be added
+   in T5 follow-up, or temporarily throw in `/api/health`).
+3. Confirm both events appear in Sentry with the correct `release` tag
+   matching the deployed commit SHA.
+4. Delete the temporary throw route.
 
 ---
 
