@@ -42,11 +42,27 @@ export function csrfCookieSetter(_req: Request, res: Response, next: NextFunctio
  * Validate CSRF token on state-changing requests.
  * Skips safe methods (GET, HEAD, OPTIONS).
  * Skips requests that use Bearer auth (API-key style, not cookie-based).
+ * Skips public endpoints that don't rely on cookie authentication.
  * Disabled in test environment (supertest doesn't use a browser).
  */
+
+/** Public POST endpoints that don't use cookie auth — exempt from CSRF. */
+const CSRF_EXEMPT_PATHS = new Set([
+  '/api/orders',
+  '/api/orders/payments/paypal/capture',
+  '/api/payments/paypal/webhook',
+  '/api/leads',
+  '/api/chat/session',
+  '/api/auth/login',
+])
+
 export function csrfProtection(req: Request, res: Response, next: NextFunction): void {
   if (env.NODE_ENV === 'test') return next()
   if (SAFE_METHODS.has(req.method)) return next()
+
+  // Public endpoints that don't rely on cookie-based auth are not
+  // vulnerable to CSRF — skip them.
+  if (CSRF_EXEMPT_PATHS.has(req.path)) return next()
 
   // Requests authenticated via Bearer token (admin API calls) are not
   // vulnerable to CSRF because the token is not auto-attached by the browser.
