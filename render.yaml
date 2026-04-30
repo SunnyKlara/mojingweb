@@ -18,7 +18,7 @@ services:
       - { key: NODE_ENV, value: production }
       - { key: PORT, value: 4000 }
       - { key: LOG_LEVEL, value: info }
-      - { key: FRONTEND_URL, value: https://modelzone-tawny.vercel.app }
+      - { key: FRONTEND_URL, value: https://www.modelzone.cc }
       - { key: SENTRY_ENVIRONMENT, value: production }
       # ---- Secrets below: set in the Render dashboard ----
       - { key: MONGODB_URI, sync: false }
@@ -34,3 +34,7 @@ services:
       - { key: SMTP_FROM, sync: false }
       - { key: NOTIFY_EMAIL, sync: false }
       - { key: SENTRY_DSN, sync: false }
+      - { key: PAYPAL_CLIENT_ID, sync: false }
+      - { key: PAYPAL_CLIENT_SECRET, sync: false }
+      - { key: PAYPAL_MODE, value: sandbox }
+      - { key: PAYPAL_WEBHOOK_ID, sync: false }
