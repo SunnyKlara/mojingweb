@@ -47,14 +47,23 @@ class LeadClientError extends Error {}
 class LeadServerError extends Error {}
 
 async function submitToOwnBackend(payload: Record<string, unknown>): Promise<void> {
+  // Read CSRF double-submit cookie for state-changing request.
+  let csrfToken: string | undefined
+  if (typeof document !== 'undefined') {
+    const match = document.cookie.match(/(?:^|;\s*)mojing_csrf=([^;]+)/)
+    if (match?.[1]) csrfToken = decodeURIComponent(match[1])
+  }
+
   let res: Response
   try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+    if (csrfToken) headers['X-CSRF-Token'] = csrfToken
+
     res = await fetch(`${BACKEND_URL}/api/leads`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(payload),
-      // Public endpoint — no cookies needed; avoid CORS preflight cookie fuss.
-      credentials: 'omit',
+      credentials: 'include',
       signal: AbortSignal.timeout(PRIMARY_TIMEOUT_MS),
     })
   } catch (err) {

@@ -20,3 +20,25 @@ export type {
   MeResponse,
 } from '../schemas/auth.schema'
 export type { Pagination, ApiError } from '../schemas/common.schema'
+
+// Commerce types (see docs/COMMERCE-SPEC.md)
+export type {
+  LocaleString,
+  ProductVariant,
+  Product,
+  CreateProductRequest,
+  UpdateProductRequest,
+} from '../schemas/product.schema'
+export type { ShippingAddress } from '../schemas/shipping.schema'
+export type {
+  OrderItem,
+  Fulfillment,
+  Order,
+  CreateOrderRequest,
+  CreateOrderResponse,
+  OrderLookup,
+  ShipOrderRequest,
+  RefundOrderRequest,
+  CapturePaymentRequest,
+} from '../schemas/order.schema'
+export type { PaymentEvent } from '../schemas/payment.schema'

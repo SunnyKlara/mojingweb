@@ -1,7 +1,12 @@
 import { Router } from 'express'
 import rateLimit from 'express-rate-limit'
 import { z } from 'zod'
-import { CreateLeadRequestSchema, UpdateLeadRequestSchema, ObjectIdSchema } from '@mojing/shared'
+import {
+  CreateLeadRequestSchema,
+  UpdateLeadRequestSchema,
+  ObjectIdSchema,
+  LEAD_STATUSES,
+} from '@mojing/shared'
 import { LeadModel } from '../models/Lead.model'
 import { validateBody, validateParams } from '../middleware/validate.middleware'
 import { requireAdmin } from '../middleware/auth.middleware'
@@ -71,7 +76,15 @@ leadRouter.get('/', requireAdmin, async (req, res, next) => {
   try {
     const { status, limit = '100' } = req.query as { status?: string; limit?: string }
     const filter: Record<string, unknown> = {}
-    if (status) filter.status = status
+    // Whitelist status values to prevent NoSQL injection via query params
+    // (e.g. ?status[$ne]=null would bypass without this check).
+    if (
+      status &&
+      typeof status === 'string' &&
+      LEAD_STATUSES.includes(status as (typeof LEAD_STATUSES)[number])
+    ) {
+      filter.status = status
+    }
     const items = await LeadModel.find(filter)
       .sort({ createdAt: -1 })
       .limit(Math.min(500, Number(limit) || 100))

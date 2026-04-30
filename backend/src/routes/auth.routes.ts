@@ -23,6 +23,8 @@ function setRefreshCookie(res: Response, token: string): void {
   res.cookie(REFRESH_COOKIE, token, {
     httpOnly: true,
     secure: isProd,
+    // Must be 'none' for cross-origin (Vercel frontend → Render backend).
+    // CSRF protection via double-submit cookie guards against cross-site abuse.
     sameSite: isProd ? 'none' : 'lax',
     path: '/api/auth',
     maxAge: REFRESH_COOKIE_MAX_AGE_MS,
@@ -99,6 +101,17 @@ authRouter.post('/refresh', async (req, res) => {
     if (!user || user.disabled) {
       clearRefreshCookie(res)
       res.status(401).json({ error: 'User not found or disabled' })
+      return
+    }
+    // Check tokenVersion — if the user has logged out or changed password,
+    // all previously issued refresh tokens are invalidated.
+    const tokenIssuedAt = payload.iat ?? 0
+    const versionBumpedAt = user.tokenVersion ?? 0
+    // We encode tokenVersion in the jti suffix for cheap server-side revocation.
+    // If the token was issued before the last version bump, reject it.
+    if (versionBumpedAt > 0 && tokenIssuedAt < versionBumpedAt) {
+      clearRefreshCookie(res)
+      res.status(401).json({ error: 'Token revoked' })
       return
     }
     const accessToken = signAccessToken({

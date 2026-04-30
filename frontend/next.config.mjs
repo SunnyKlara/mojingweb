@@ -12,7 +12,12 @@ const nextConfig = {
   transpilePackages: ['@mojing/shared'],
   images: {
     formats: ['image/avif', 'image/webp'],
-    remotePatterns: [{ protocol: 'https', hostname: '**' }],
+    // Only allow images from our own domain and known CDNs.
+    // Add payment provider domains here when integrating (e.g. paypal.com).
+    remotePatterns: [
+      { protocol: 'https', hostname: 'fonts.gstatic.com' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+    ],
   },
   async headers() {
     return [

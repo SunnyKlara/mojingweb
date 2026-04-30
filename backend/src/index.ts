@@ -8,17 +8,20 @@ import { logger } from './config/logger'
 import { connectMongo } from './db/mongoose'
 import { createServer } from './server'
 import { seedDefaultAdmin } from './services/auth.service'
+import { startOrderCleanup, stopOrderCleanup } from './services/order-cleanup.service'
 
 async function main(): Promise<void> {
   await connectMongo()
   await seedDefaultAdmin()
   const { server } = createServer()
+  startOrderCleanup()
   server.listen(env.PORT, () => {
     logger.info(`API listening on http://localhost:${env.PORT}`)
   })
 
   const shutdown = (signal: string) => {
     logger.info({ signal }, 'Shutting down')
+    stopOrderCleanup()
     server.close(() => process.exit(0))
     setTimeout(() => process.exit(1), 10_000).unref()
   }

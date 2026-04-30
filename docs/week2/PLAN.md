@@ -1,4 +1,4 @@
-﻿# Week 2 · Plan
+# Week 2 · Plan
 
 **Window**: 2026-04-24 → 2026-04-30 (7 calendar days, target ~25 h work).
 **Theme**: Ship a real, live backend. First production deploy. First lead
@@ -108,13 +108,7 @@ First real production deploy of the backend.
   checker.
 - Vercel production deploys show no CORS errors.
 
-### T4  Admin console refactor  **RESCOPED**  ~1 h  Day 4
-
-> **Correction (2026-04-23)**: `page.tsx` is **481 lines**, not 18k.
-> The "18k-line monolith" framing mistook bytes for lines. File already
-> satisfies the <500-line criterion. Default this week: **skip T4**;
-> revisit in Week 4 chat sweep. Real admin debt is missing E2E tests
-> (blocked on T3 Render deploy)  moves to Week 3.
+### T4 · Admin console refactor · **RESCOPED** · ~1 h · Day 4
 
 The admin page was the original reason `ignoreBuildErrors` existed. Now
 that the flag is gone (ADR-0007), we need to maintain it properly.

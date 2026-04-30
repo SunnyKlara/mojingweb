@@ -33,7 +33,7 @@ export function BuySticky() {
             <p className="truncate text-[13px] font-medium">180 天质保 · 7 天无理由 · 全球配送</p>
           </div>
           <a
-            href="#contact"
+            href="/checkout?sku=WC64-BLK"
             className="bg-background text-foreground hover:bg-background/90 inline-flex shrink-0 items-center gap-1.5 rounded-full px-5 py-2 text-sm font-semibold transition-colors"
           >
             {t('cta')}

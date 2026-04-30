@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { randomUUID } from 'node:crypto'
+import rateLimit from 'express-rate-limit'
 import { z } from 'zod'
 import { MessageModel } from '../models/Message.model'
 import { SessionModel } from '../models/Session.model'
@@ -14,11 +15,20 @@ export const chatRouter = Router()
 
 const SessionIdParams = z.object({ sessionId: UuidSchema })
 
+/** Rate limit session creation to prevent resource exhaustion. */
+const sessionCreateLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: 'Too many session requests, try again later' },
+})
+
 /**
  * Public — issue a signed visitor session token.
  * The visitor calls this on first load; the sessionId is bound server-side via JWT.
  */
-chatRouter.post('/session', (_req, res) => {
+chatRouter.post('/session', sessionCreateLimiter, (_req, res) => {
   const sessionId = randomUUID()
   const sessionToken = signVisitorSession(sessionId)
   const response: IssueSessionResponse = { sessionId, sessionToken }
