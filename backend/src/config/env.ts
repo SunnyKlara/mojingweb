@@ -20,7 +20,11 @@ const EnvSchema = z
 
     ADMIN_USERNAME: z.string().min(3).default('admin'),
     ADMIN_PASSWORD: z.string().min(8, 'ADMIN_PASSWORD must be >= 8 chars'),
-    ADMIN_EMAIL: z.string().email().default('admin@example.com'),
+    ADMIN_EMAIL: z
+      .string()
+      .email()
+      .default('admin@example.com')
+      .or(z.literal('').transform(() => 'admin@example.com')),
 
     SMTP_HOST: z.string().optional(),
     SMTP_PORT: z.coerce.number().int().positive().optional(),
