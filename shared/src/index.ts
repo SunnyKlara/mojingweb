@@ -1,4 +1,4 @@
-export * from './schemas/index'
-export * from './types/index'
+export * from './schemas'
+export * from './types'
 export * from './events'
 export * from './constants'
