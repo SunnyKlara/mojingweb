@@ -15,6 +15,7 @@ import { healthRouter } from './routes/health.routes'
 import { productRouter, adminProductRouter } from './routes/product.routes'
 import { orderRouter } from './routes/order.routes'
 import { adminOrderRouter } from './routes/admin-order.routes'
+import { webhookRouter } from './routes/webhook.routes'
 import { errorHandler, notFoundHandler } from './middleware/error.middleware'
 import { csrfCookieSetter, csrfProtection } from './middleware/csrf.middleware'
 import { registerSocketHandlers } from './socket'
@@ -63,7 +64,17 @@ export function createServer(): { app: express.Express; server: http.Server; io:
     }),
   )
   app.use(cors({ origin: env.FRONTEND_URL, credentials: true }))
-  app.use(express.json({ limit: '100kb' }))
+  // Save raw body for PayPal webhook signature verification
+  app.use(
+    express.json({
+      limit: '100kb',
+      verify: (req, _res, buf) => {
+        if ((req as express.Request).originalUrl === '/api/payments/paypal/webhook') {
+          (req as express.Request & { rawBody?: Buffer }).rawBody = buf
+        }
+      },
+    }),
+  )
   app.use(cookieParser())
   app.use(pinoHttp({ logger }))
 
@@ -88,6 +99,7 @@ export function createServer(): { app: express.Express; server: http.Server; io:
   app.use('/api/orders', orderRouter)
   app.use('/api/admin/products', adminProductRouter)
   app.use('/api/admin/orders', adminOrderRouter)
+  app.use('/api/payments', webhookRouter)
 
   app.use(notFoundHandler)
   // Sentry v8 error handler — must come BEFORE the project-level error handler.

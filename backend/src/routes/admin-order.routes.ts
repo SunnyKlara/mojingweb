@@ -15,6 +15,7 @@ import { requireAdmin } from '../middleware/auth.middleware'
 import { validateBody, validateParams } from '../middleware/validate.middleware'
 import { audit } from '../services/audit.service'
 import { refundPayPalCapture } from '../services/paypal.service'
+import { notifyOrderShipped, notifyOrderRefunded } from '../services/mailer.service'
 import { logger } from '../config/logger'
 
 export const adminOrderRouter = Router()
@@ -105,7 +106,8 @@ adminOrderRouter.patch(
         req,
       })
 
-      // TODO: send shipping notification email (P8)
+      // Send shipping notification email (fire-and-forget)
+      void notifyOrderShipped(order)
 
       logger.info({ orderNo: order.orderNo, trackingNo: body.trackingNo }, 'Order shipped')
       res.json(order)
@@ -185,7 +187,8 @@ adminOrderRouter.patch(
         req,
       })
 
-      // TODO: send refund notification email (P8)
+      // Send refund notification email (fire-and-forget)
+      void notifyOrderRefunded(order, body.amount)
 
       logger.info({ orderNo: order.orderNo, refundId: refund.refundId }, 'Order refunded')
       res.json(order)

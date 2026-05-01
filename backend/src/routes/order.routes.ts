@@ -17,6 +17,7 @@ import { getShippingRate } from '../config/shipping'
 import { env } from '../config/env'
 import { logger } from '../config/logger'
 import { createPayPalOrder, capturePayPalOrder, centsToDollars } from '../services/paypal.service'
+import { notifyOrderConfirmed } from '../services/mailer.service'
 
 export const orderRouter = Router()
 
@@ -288,7 +289,8 @@ orderRouter.post(
         req,
       })
 
-      // 7. TODO: send confirmation email (P8)
+      // 7. Send confirmation email (fire-and-forget)
+      void notifyOrderConfirmed(order)
 
       logger.info(
         { orderNo: order.orderNo, total: centsToDollars(order.total) },

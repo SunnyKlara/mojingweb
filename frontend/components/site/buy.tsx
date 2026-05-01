@@ -1,28 +1,38 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useLocale, useTranslations } from 'next-intl'
 import { ArrowRight, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/i18n/routing'
 import { cn } from '@/lib/utils'
+import { api } from '@/lib/api'
+import type { Product } from '@mojing/shared'
 
-const VARIANTS = [
+/** Fallback data used while API loads or if it fails. */
+const FALLBACK_VARIANTS = [
   {
     sku: 'WC64-BLK',
     name: { zh: '曜石黑', en: 'Obsidian Black' },
     color: '#1a1a1a',
     image: '/brand/product-black.jpg',
+    stock: -1,
   },
   {
     sku: 'WC64-WHT',
     name: { zh: '皓月白', en: 'Lunar White' },
     color: '#e8e8e8',
     image: '/brand/product-white.jpg',
+    stock: -1,
   },
 ]
 
-const PRICE_CENTS = 29900
+const FALLBACK_PRICE = 29900
+
+const COLOR_MAP: Record<string, string> = {
+  'WC64-BLK': '#1a1a1a',
+  'WC64-WHT': '#e8e8e8',
+}
 
 /** Single-product spotlight + colour picker + Buy Now CTA. */
 export function Buy() {
@@ -30,8 +40,37 @@ export function Buy() {
   const nav = useTranslations('nav')
   const locale = useLocale() as 'zh' | 'en'
   const [selected, setSelected] = useState(0)
+  const [product, setProduct] = useState<Product | null>(null)
 
-  const variant = VARIANTS[selected]!
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        const data = await api<Product>('/api/products/wind-chaser-64')
+        if (!cancelled) setProduct(data)
+      } catch {
+        // Silently fall back to hardcoded data
+      }
+    }
+    void load()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const price = product?.price ?? FALLBACK_PRICE
+  const variants = product
+    ? product.variants.map((v) => ({
+        sku: v.sku,
+        name: v.name,
+        color: COLOR_MAP[v.sku] ?? '#888',
+        image: v.image,
+        stock: v.stock,
+      }))
+    : FALLBACK_VARIANTS
+
+  const variant = variants[selected] ?? variants[0]!
+  const outOfStock = variant.stock === 0
 
   return (
     <section id="buy" className="bg-foreground text-background py-24 md:py-32">
@@ -62,11 +101,34 @@ export function Buy() {
             <p className="mt-6 max-w-lg text-base opacity-70 md:text-lg">{t('description')}</p>
 
             {/* Price */}
-            <p className="mt-8 text-3xl font-bold">${(PRICE_CENTS / 100).toFixed(2)}</p>
+            <p className="mt-8 text-3xl font-bold">${(price / 100).toFixed(2)}</p>
+
+            {/* Stock status */}
+            {product && (
+              <p
+                className={cn('mt-2 text-sm font-medium', {
+                  'text-emerald-400': variant.stock > 10,
+                  'text-amber-400': variant.stock > 0 && variant.stock <= 10,
+                  'text-red-400': variant.stock === 0,
+                })}
+              >
+                {variant.stock > 10
+                  ? locale === 'zh'
+                    ? '有货'
+                    : 'In Stock'
+                  : variant.stock > 0
+                    ? locale === 'zh'
+                      ? `仅剩 ${variant.stock} 件`
+                      : `Low Stock — only ${variant.stock} left`
+                    : locale === 'zh'
+                      ? '缺货'
+                      : 'Out of Stock'}
+              </p>
+            )}
 
             {/* Colour picker */}
             <div className="mt-6 flex items-center gap-3">
-              {VARIANTS.map((v, i) => (
+              {variants.map((v, i) => (
                 <button
                   key={v.sku}
                   onClick={() => setSelected(i)}
@@ -96,14 +158,19 @@ export function Buy() {
             {/* CTA buttons */}
             <div className="mt-8 flex flex-wrap gap-3">
               <Button
-                asChild
+                asChild={!outOfStock}
                 size="xl"
+                disabled={outOfStock}
                 className="bg-background text-foreground hover:bg-background/90 rounded-full font-semibold"
               >
-                <Link href={`/checkout?sku=${variant.sku}`}>
-                  {nav('cta')} — ${(PRICE_CENTS / 100).toFixed(2)}
-                  <ArrowRight />
-                </Link>
+                {outOfStock ? (
+                  <span>{locale === 'zh' ? '暂时缺货' : 'Out of Stock'}</span>
+                ) : (
+                  <Link href={`/checkout?sku=${variant.sku}`}>
+                    {nav('cta')} — ${(price / 100).toFixed(2)}
+                    <ArrowRight />
+                  </Link>
+                )}
               </Button>
               <Button
                 asChild

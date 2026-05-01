@@ -34,8 +34,8 @@ export function Footer() {
     {
       title: t('columns.legal'),
       links: [
-        { label: t('links.privacy'), href: '#' },
-        { label: t('links.terms'), href: '#' },
+        { label: t('links.privacy'), href: '/privacy' },
+        { label: t('links.terms'), href: '/terms' },
         { label: t('links.warranty'), href: '#' },
       ],
     },

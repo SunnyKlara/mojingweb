@@ -1,15 +1,15 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
-import { Loader2, Lock, ShieldCheck } from 'lucide-react'
+import { Loader2, Lock, ShieldCheck, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { api } from '@/lib/api'
-import type { CreateOrderResponse } from '@mojing/shared'
+import type { CreateOrderResponse, Product } from '@mojing/shared'
 
 const COUNTRIES = [
   { code: 'US', name: 'United States' },
@@ -81,35 +81,59 @@ export default function CheckoutPage() {
   const sku = searchParams.get('sku') || 'WC64-BLK'
   const quantity = Math.min(10, Math.max(1, Number(searchParams.get('qty')) || 1))
 
-  // Hardcoded for V1 single product — will be fetched from API in V2
-  const product = {
-    name: locale === 'zh' ? '追风者 64' : 'Wind Chaser 64',
-    variantName:
-      sku === 'WC64-WHT'
-        ? locale === 'zh'
-          ? '皓月白'
-          : 'Lunar White'
-        : locale === 'zh'
-          ? '曜石黑'
-          : 'Obsidian Black',
-    price: 29900,
-    image: sku === 'WC64-WHT' ? '/brand/product-white.jpg' : '/brand/product-black.jpg',
-  }
-
+  const [product, setProduct] = useState<Product | null>(null)
+  const [productLoading, setProductLoading] = useState(true)
+  const [productError, setProductError] = useState<string | null>(null)
   const [address, setAddress] = useState<AddressForm>(initialAddress)
   const [loading, setLoading] = useState(false)
+
+  // Fetch product data from API
+  useEffect(() => {
+    let cancelled = false
+    async function fetchProduct() {
+      try {
+        const data = await api<Product>('/api/products/wind-chaser-64')
+        if (!cancelled) {
+          setProduct(data)
+          // Validate that the requested SKU exists
+          const hasVariant = data.variants.some((v) => v.sku === sku)
+          if (!hasVariant) {
+            setProductError(`Variant ${sku} not found`)
+          }
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setProductError(err instanceof Error ? err.message : 'Failed to load product')
+        }
+      } finally {
+        if (!cancelled) setProductLoading(false)
+      }
+    }
+    void fetchProduct()
+    return () => {
+      cancelled = true
+    }
+  }, [sku])
+
+  const variant = product?.variants.find((v) => v.sku === sku)
+  const productName = product ? (locale === 'zh' ? product.name.zh : product.name.en) : ''
+  const variantName = variant ? (locale === 'zh' ? variant.name.zh : variant.name.en) : ''
+  const price = product?.price ?? 0
+  const variantImage = variant?.image ?? '/brand/product-black.jpg'
 
   const update =
     (key: keyof AddressForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       setAddress((prev) => ({ ...prev, [key]: e.target.value }))
     }
 
-  const subtotal = product.price * quantity
+  const subtotal = price * quantity
   const shippingRate = SHIPPING_RATES[address.country] ?? SHIPPING_RATES['DEFAULT']!
   const shipping = address.country ? shippingRate : 0
   const total = subtotal + shipping
 
   const canSubmit =
+    product &&
+    variant &&
     address.fullName &&
     address.email &&
     address.line1 &&
@@ -148,6 +172,32 @@ export default function CheckoutPage() {
       toast.error(err instanceof Error ? err.message : 'Checkout failed')
       setLoading(false)
     }
+  }
+
+  // Loading state
+  if (productLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+      </div>
+    )
+  }
+
+  // Error state
+  if (productError || !product) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <div className="text-center">
+          <AlertCircle className="text-destructive mx-auto mb-4 h-12 w-12" />
+          <p className="text-destructive mb-2 text-lg font-semibold">
+            {productError || 'Product not found'}
+          </p>
+          <Button asChild>
+            <a href="/">{t('cancelCta')}</a>
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -283,21 +333,21 @@ export default function CheckoutPage() {
               <div className="flex gap-4">
                 <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-black">
                   <Image
-                    src={product.image}
-                    alt={product.name}
+                    src={variantImage}
+                    alt={productName}
                     fill
                     className="object-cover"
                     sizes="80px"
                   />
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium">{product.name}</p>
-                  <p className="text-muted-foreground text-sm">{product.variantName}</p>
+                  <p className="font-medium">{productName}</p>
+                  <p className="text-muted-foreground text-sm">{variantName}</p>
                   <p className="text-muted-foreground text-sm">
                     {t('qty')}: {quantity}
                   </p>
                 </div>
-                <p className="font-semibold">{cents(product.price * quantity)}</p>
+                <p className="font-semibold">{cents(price * quantity)}</p>
               </div>
 
               <div className="mt-6 space-y-2 border-t pt-4 text-sm">
